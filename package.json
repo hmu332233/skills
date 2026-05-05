@@ -1,0 +1,20 @@
+{
+  "name": "minung-skills",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "CLI to register skills from this repository as symlinks",
+  "bin": {
+    "minung-skills": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x dist/cli.js",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -70,33 +70,35 @@ minung-skills list --project
 ### 스킬 등록
 
 ```sh
-minung-skills add <name> --root
-minung-skills add <name> --project
+minung-skills add <name...> --root
+minung-skills add <name...> --project
 ```
 
 `--root` 또는 `--project` 중 하나를 반드시 지정해야 합니다.
+스킬 이름은 하나 이상 지정할 수 있으며, 일부 등록이 실패해도 나머지 스킬 등록은 계속 시도합니다.
 
 예:
 
 ```sh
-minung-skills add plan --project
+minung-skills add plan execute-plan --project
 minung-skills add execute-plan --root
 ```
 
 위 명령은 각각 다음 위치에 심볼릭 링크를 만듭니다.
 
 - `./.agents/skills/plan`
+- `./.agents/skills/execute-plan`
 - `~/.agents/skills/execute-plan`
 
 이미 같은 이름의 항목이 있으면 덮어쓰지 않고 실패합니다. 교체하려면 기존 파일 또는 링크를 직접 삭제한 뒤 다시 실행하세요.
 
 ## 예시
 
-프로젝트 디렉토리에서 `plan` 스킬을 local로 등록하는 예시입니다.
+프로젝트 디렉토리에서 `plan`과 `execute-plan` 스킬을 local로 등록하는 예시입니다.
 
 ```sh
 cd ~/my-project
-minung-skills add plan --project
+minung-skills add plan execute-plan --project
 minung-skills list --project
 ```
 
@@ -104,6 +106,7 @@ minung-skills list --project
 
 ```sh
 [project] /Users/you/my-project/.agents/skills
+  execute-plan  [✓]
   plan  [✓]
 ```
 

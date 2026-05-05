@@ -103,12 +103,7 @@ export function addSkill(name: string, scope: Scope): void {
   try {
     statSync(src);
   } catch {
-    const available = listSourceSkills();
-    const hint =
-      available.length > 0
-        ? `\nAvailable skills: ${available.join(", ")}`
-        : "";
-    throw new Error(`Source skill not found: "${name}"${hint}`);
+    throw new Error(`Source skill not found: "${name}"`);
   }
 
   const targetDir =

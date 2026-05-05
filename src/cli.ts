@@ -14,7 +14,7 @@ Usage: minung-skills <command> [options]
 Commands:
   available                         List skills available in the source repository
   list [--root] [--project]         List registered skills (default: both)
-  add <name> --root|--project       Register a skill as a symlink
+  add <name...> --root|--project    Register one or more skills as symlinks
 
 Options:
   --help    Show this help message
@@ -124,6 +124,7 @@ function cmdList(args: string[]): void {
 }
 
 function cmdAdd(args: string[]): void {
+  const usage = "Usage: minung-skills add <name...> --root|--project";
   let values: { root?: boolean; project?: boolean };
   let positionals: string[];
   try {
@@ -137,19 +138,12 @@ function cmdAdd(args: string[]): void {
       allowPositionals: true,
     }));
   } catch (err: unknown) {
-    console.error(`Error: ${(err as Error).message}\n\nUsage: minung-skills add <name> --root|--project`);
+    console.error(`Error: ${(err as Error).message}\n\n${usage}`);
     process.exit(1);
   }
 
   if (positionals.length === 0) {
-    console.error("Error: skill name is required.\n\nUsage: minung-skills add <name> --root|--project");
-    process.exit(1);
-  }
-
-  if (positionals.length > 1) {
-    console.error(
-      `Error: only one skill name is allowed, got: ${positionals.join(", ")}\n\nUsage: minung-skills add <name> --root|--project`
-    );
+    console.error(`Error: at least one skill name is required.\n\n${usage}`);
     process.exit(1);
   }
 
@@ -163,16 +157,35 @@ function cmdAdd(args: string[]): void {
     process.exit(1);
   }
 
-  const name = positionals[0];
   const scope = values.root ? "root" : "project";
+  const label = scope === "root" ? "~/.agents/skills" : ".agents/skills";
+  const successes: string[] = [];
+  const failures: string[] = [];
 
-  try {
-    addSkill(name, scope);
-    const label =
-      scope === "root" ? "~/.agents/skills" : `.agents/skills`;
-    console.log(`✓ Registered "${name}" → ${label}/${name}`);
-  } catch (err: unknown) {
-    console.error(`Error: ${(err as Error).message}`);
+  for (const name of positionals) {
+    try {
+      addSkill(name, scope);
+      successes.push(name);
+      console.log(`✓ Registered "${name}" → ${label}/${name}`);
+    } catch (err: unknown) {
+      failures.push(name);
+      console.error(`✗ Failed "${name}": ${(err as Error).message}`);
+    }
+  }
+
+  if (failures.length > 0) {
+    const available = listSourceSkills();
+    if (available.length > 0) {
+      console.error(`Available skills: ${available.join(", ")}`);
+    }
+  }
+
+  console.log(`Summary: ${successes.length} succeeded, ${failures.length} failed.`);
+  if (successes.length > 0) {
+    console.log(`Succeeded: ${successes.join(", ")}`);
+  }
+  if (failures.length > 0) {
+    console.error(`Failed: ${failures.join(", ")}`);
     process.exit(1);
   }
 }

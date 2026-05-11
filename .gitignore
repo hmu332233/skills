@@ -1,4 +1,5 @@
 node_modules/
 dist/
-.plan
 .agents
+
+skills/agent-browser/

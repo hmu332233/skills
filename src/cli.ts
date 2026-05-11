@@ -4,8 +4,10 @@ import {
   listSourceSkills,
   listRegisteredSkills,
   addSkill,
-  ROOT_TARGET_DIR,
+  rootTargetDir,
   projectTargetDir,
+  type TargetKind,
+  type Scope,
 } from "./core.js";
 
 const USAGE = `
@@ -13,10 +15,13 @@ Usage: minung-skills <command> [options]
 
 Commands:
   available                         List skills available in the source repository
-  list [--root] [--project]         List registered skills (default: both)
-  add <name...> --root|--project    Register one or more skills as symlinks
+  list [--root] [--project] [--claude]
+                                      List registered skills (default: both .agents scopes)
+  add <name...> --root|--project [--claude]
+                                      Register one or more skills as symlinks
 
 Options:
+  --claude  Use .claude/skills instead of .agents/skills
   --help    Show this help message
 `.trim();
 
@@ -75,30 +80,37 @@ function statusLabel(status: string): string {
   }
 }
 
+function targetLabel(scope: Scope, target: TargetKind): string {
+  const dir = target === "claude" ? ".claude/skills" : ".agents/skills";
+  return scope === "root" ? `~/${dir}` : dir;
+}
+
 function cmdList(args: string[]): void {
-  let values: { root?: boolean; project?: boolean };
+  let values: { root?: boolean; project?: boolean; claude?: boolean };
   try {
     ({ values } = parseArgs({
       args,
       options: {
         root: { type: "boolean", default: false },
         project: { type: "boolean", default: false },
+        claude: { type: "boolean", default: false },
       },
       strict: true,
       allowPositionals: false,
     }));
   } catch (err: unknown) {
-    console.error(`Error: ${(err as Error).message}\n\nUsage: minung-skills list [--root] [--project]`);
+    console.error(`Error: ${(err as Error).message}\n\nUsage: minung-skills list [--root] [--project] [--claude]`);
     process.exit(1);
   }
 
   // Show both when neither or both flags are specified
   const showRoot = values.root || (!values.root && !values.project);
   const showProject = values.project || (!values.root && !values.project);
+  const target: TargetKind = values.claude ? "claude" : "agents";
 
   if (showRoot) {
-    console.log("[root] ~/.agents/skills");
-    const entries = listRegisteredSkills(ROOT_TARGET_DIR);
+    console.log(`[root] ${targetLabel("root", target)}`);
+    const entries = listRegisteredSkills(rootTargetDir(target));
     if (entries.length === 0) {
       console.log("  (empty)");
     } else {
@@ -110,7 +122,7 @@ function cmdList(args: string[]): void {
 
   if (showProject) {
     if (showRoot) console.log();
-    const projDir = projectTargetDir();
+    const projDir = projectTargetDir(process.cwd(), target);
     console.log(`[project] ${projDir}`);
     const entries = listRegisteredSkills(projDir);
     if (entries.length === 0) {
@@ -124,8 +136,8 @@ function cmdList(args: string[]): void {
 }
 
 function cmdAdd(args: string[]): void {
-  const usage = "Usage: minung-skills add <name...> --root|--project";
-  let values: { root?: boolean; project?: boolean };
+  const usage = "Usage: minung-skills add <name...> --root|--project [--claude]";
+  let values: { root?: boolean; project?: boolean; claude?: boolean };
   let positionals: string[];
   try {
     ({ values, positionals } = parseArgs({
@@ -133,6 +145,7 @@ function cmdAdd(args: string[]): void {
       options: {
         root: { type: "boolean", default: false },
         project: { type: "boolean", default: false },
+        claude: { type: "boolean", default: false },
       },
       strict: true,
       allowPositionals: true,
@@ -157,14 +170,15 @@ function cmdAdd(args: string[]): void {
     process.exit(1);
   }
 
-  const scope = values.root ? "root" : "project";
-  const label = scope === "root" ? "~/.agents/skills" : ".agents/skills";
+  const scope: Scope = values.root ? "root" : "project";
+  const target: TargetKind = values.claude ? "claude" : "agents";
+  const label = targetLabel(scope, target);
   const successes: string[] = [];
   const failures: string[] = [];
 
   for (const name of positionals) {
     try {
-      addSkill(name, scope);
+      addSkill(name, scope, target);
       successes.push(name);
       console.log(`✓ Registered "${name}" → ${label}/${name}`);
     } catch (err: unknown) {

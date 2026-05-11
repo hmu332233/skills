@@ -2,10 +2,15 @@
 
 이 저장소의 `skills/` 디렉토리에 있는 스킬을 다른 위치에 심볼릭 링크로 등록해 주는 CLI입니다.
 
-등록 대상은 두 가지입니다.
+기본 등록 대상은 두 가지입니다.
 
 - **root/global**: `~/.agents/skills/<skill-name>`
 - **project/local**: `현재 작업 디렉토리/.agents/skills/<skill-name>`
+
+`--claude` 옵션을 함께 지정하면 `.agents/skills` 대신 Claude용 `.claude/skills`를 사용합니다.
+
+- **root/global + `--claude`**: `~/.claude/skills/<skill-name>`
+- **project/local + `--claude`**: `현재 작업 디렉토리/.claude/skills/<skill-name>`
 
 ## 설치
 
@@ -52,11 +57,13 @@ plan
 minung-skills list
 minung-skills list --root
 minung-skills list --project
+minung-skills list --project --claude
 ```
 
-- `list`: root와 project 등록 상태를 모두 출력합니다.
+- `list`: root와 project의 `.agents/skills` 등록 상태를 모두 출력합니다.
 - `list --root`: `~/.agents/skills`만 확인합니다.
 - `list --project`: 현재 디렉토리의 `.agents/skills`만 확인합니다.
+- `list --claude`: `.agents/skills` 대신 `.claude/skills`를 확인합니다.
 
 상태 표시는 다음과 같습니다.
 
@@ -72,9 +79,11 @@ minung-skills list --project
 ```sh
 minung-skills add <name...> --root
 minung-skills add <name...> --project
+minung-skills add <name...> --project --claude
 ```
 
 `--root` 또는 `--project` 중 하나를 반드시 지정해야 합니다.
+`--claude`를 지정하지 않으면 기존처럼 `.agents/skills`에 등록하고, 지정하면 `.claude/skills`에 등록합니다.
 스킬 이름은 하나 이상 지정할 수 있으며, 일부 등록이 실패해도 나머지 스킬 등록은 계속 시도합니다.
 
 예:
@@ -82,6 +91,7 @@ minung-skills add <name...> --project
 ```sh
 minung-skills add plan execute-plan --project
 minung-skills add execute-plan --root
+minung-skills add plan --project --claude
 ```
 
 위 명령은 각각 다음 위치에 심볼릭 링크를 만듭니다.
@@ -89,6 +99,7 @@ minung-skills add execute-plan --root
 - `./.agents/skills/plan`
 - `./.agents/skills/execute-plan`
 - `~/.agents/skills/execute-plan`
+- `./.claude/skills/plan`
 
 이미 같은 이름의 항목이 있으면 덮어쓰지 않고 실패합니다. 교체하려면 기존 파일 또는 링크를 직접 삭제한 뒤 다시 실행하세요.
 
@@ -110,10 +121,17 @@ minung-skills list --project
   plan  [✓]
 ```
 
+Claude용 `.claude/skills`에 등록하려면 `--claude`를 추가합니다.
+
+```sh
+minung-skills add plan --project --claude
+minung-skills list --project --claude
+```
+
 ## 주의사항
 
 - 심볼릭 링크는 이 저장소의 절대 경로를 가리킵니다. 저장소 위치를 옮기면 기존 링크가 깨질 수 있으니 다시 등록하세요.
 - 삭제 명령은 아직 없습니다. 필요하면 직접 삭제하세요.
-  - root: `rm ~/.agents/skills/<name>`
-  - project: `rm .agents/skills/<name>`
+  - root: `rm ~/.agents/skills/<name>` 또는 `rm ~/.claude/skills/<name>`
+  - project: `rm .agents/skills/<name>` 또는 `rm .claude/skills/<name>`
 - Windows 환경은 지원 대상으로 보지 않습니다.

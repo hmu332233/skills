@@ -14,10 +14,25 @@ import { homedir } from "node:os";
 // Resolve paths relative to the built file location (dist/core.js → ../skills)
 const DIST_DIR = dirname(fileURLToPath(import.meta.url));
 export const SOURCE_SKILLS_ROOT = resolve(DIST_DIR, "../skills");
-export const ROOT_TARGET_DIR = resolve(homedir(), ".agents/skills");
 
-export function projectTargetDir(cwd: string = process.cwd()): string {
-  return resolve(cwd, ".agents/skills");
+export type TargetKind = "agents" | "claude";
+
+const TARGET_SKILLS_DIR: Record<TargetKind, string> = {
+  agents: ".agents/skills",
+  claude: ".claude/skills",
+};
+
+export function rootTargetDir(target: TargetKind = "agents"): string {
+  return resolve(homedir(), TARGET_SKILLS_DIR[target]);
+}
+
+export const ROOT_TARGET_DIR = rootTargetDir("agents");
+
+export function projectTargetDir(
+  cwd: string = process.cwd(),
+  target: TargetKind = "agents"
+): string {
+  return resolve(cwd, TARGET_SKILLS_DIR[target]);
 }
 
 export function listSourceSkills(): string[] {
@@ -96,7 +111,11 @@ export function listRegisteredSkills(targetDir: string): RegisteredSkill[] {
 
 export type Scope = "root" | "project";
 
-export function addSkill(name: string, scope: Scope): void {
+export function addSkill(
+  name: string,
+  scope: Scope,
+  target: TargetKind = "agents"
+): void {
   const src = join(SOURCE_SKILLS_ROOT, name);
 
   // Verify source exists
@@ -107,7 +126,9 @@ export function addSkill(name: string, scope: Scope): void {
   }
 
   const targetDir =
-    scope === "root" ? ROOT_TARGET_DIR : projectTargetDir();
+    scope === "root"
+      ? rootTargetDir(target)
+      : projectTargetDir(process.cwd(), target);
   const dest = join(targetDir, name);
 
   // Ensure target directory exists

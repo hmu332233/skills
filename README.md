@@ -135,3 +135,26 @@ minung-skills list --project --claude
   - root: `rm ~/.agents/skills/<name>` 또는 `rm ~/.claude/skills/<name>`
   - project: `rm .agents/skills/<name>` 또는 `rm .claude/skills/<name>`
 - Windows 환경은 지원 대상으로 보지 않습니다.
+
+---
+
+## 외부 스킬
+
+- https://github.com/vercel-labs/agent-browser
+  - agent-browser
+
+- https://github.com/mattpocock/skills
+  - caveman
+  - diagnose
+  - grill-me
+  - grill-with-docs
+  - handoff
+  - improve-codebase-architecture
+  - prototype
+  - setup-matt-pocock-skills
+  - tdd
+  - to-issues
+  - to-prd
+  - triage
+  - write-a-skill
+  - zoom-out

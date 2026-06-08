@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .agents
+.claude
 
 skills/agent-browser/
 skills/grill-me/

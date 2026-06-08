@@ -184,6 +184,20 @@ press Enter or other keys:
 herdr pane send-keys 1-1 Enter
 ```
 
+`send-keys` accepts only these named keys:
+
+```
+Enter  Tab  Esc  Backspace  Up  Down  Left  Right  C-c  ctrl+c
+```
+
+Lowercase spellings also work for the basic named keys. Single-character keys also
+work. For keys not on the named-key list — notably **Shift+Tab / BackTab** (e.g.
+to cycle Claude's permission mode) — send the raw escape with `send-text`:
+
+```bash
+herdr pane send-text 1-1 $'\e[Z'   # Shift+Tab (BackTab)
+```
+
 `pane run` sends the text and then a real `Enter` key in one request:
 
 ```bash

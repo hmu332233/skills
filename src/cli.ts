@@ -78,7 +78,7 @@ function cmdAvailable(): void {
     return;
   }
 
-  for (const category of ["local", "imported"] satisfies SourceCategory[]) {
+  for (const category of ["local", "imported", "taste"] satisfies SourceCategory[]) {
     const categorySkills = skills.filter((skill) => skill.category === category);
     if (categorySkills.length === 0) continue;
     console.log(`[${category}]`);
@@ -307,6 +307,8 @@ function categoryLabel(category: SourceCategory): string {
       return "Local";
     case "imported":
       return "Imported";
+    case "taste":
+      return "Taste";
   }
 }
 
@@ -336,7 +338,7 @@ function groupedSkillChoices(skills: SourceSkill[], destination: Destination) {
       }
   )[] = [];
 
-  for (const category of ["local", "imported"] satisfies SourceCategory[]) {
+  for (const category of ["local", "imported", "taste"] satisfies SourceCategory[]) {
     const categorySkills = skills.filter((skill) => skill.category === category);
     if (categorySkills.length === 0) continue;
 
@@ -377,7 +379,7 @@ function printBlockedSkillSummary(
   console.log(`No selectable skills for ${destinationLabel(destination)}.`);
   console.log("Existing target entries block every source skill:");
 
-  for (const category of ["local", "imported"] satisfies SourceCategory[]) {
+  for (const category of ["local", "imported", "taste"] satisfies SourceCategory[]) {
     const categorySkills = skills.filter((skill) => skill.category === category);
     const blocked = categorySkills
       .map((skill) => ({

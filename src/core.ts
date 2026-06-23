@@ -17,9 +17,9 @@ const DIST_DIR = dirname(fileURLToPath(import.meta.url));
 export const SOURCE_SKILLS_ROOT = resolve(DIST_DIR, "../skills");
 
 export type TargetKind = "agents" | "claude";
-export type SourceCategory = "local" | "imported";
+export type SourceCategory = "local" | "imported" | "taste";
 
-const SOURCE_CATEGORIES: SourceCategory[] = ["local", "imported"];
+const SOURCE_CATEGORIES: SourceCategory[] = ["local", "imported", "taste"];
 
 export type SourceSkill = {
   name: string;

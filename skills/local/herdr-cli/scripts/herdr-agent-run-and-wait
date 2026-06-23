@@ -1,0 +1,203 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import subprocess
+import sys
+import time
+
+
+COMPLETION_STATUSES = ("idle", "done")
+ATTENTION_STATUSES = ("blocked",)
+
+
+def run_json(args):
+    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if result.returncode != 0:
+        return None, result
+    try:
+        return json.loads(result.stdout), result
+    except json.JSONDecodeError:
+        return None, result
+
+
+def pane_status(pane_id):
+    data, result = run_json(["herdr", "pane", "get", pane_id])
+    if data is None:
+        return None, result
+    return data["result"]["pane"].get("agent_status"), result
+
+
+def popen(args):
+    return subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+
+def wait_status(pane_id, status, timeout_ms):
+    return popen(["herdr", "wait", "agent-status", pane_id, "--status", status, "--timeout", str(timeout_ms)])
+
+
+def finish_process(proc):
+    stdout, stderr = proc.communicate()
+    return stdout.strip(), stderr.strip()
+
+
+def stop_processes(procs):
+    for proc in procs:
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+
+def parse_event(stdout):
+    if not stdout:
+        return None
+    try:
+        return json.loads(stdout)
+    except json.JSONDecodeError:
+        return stdout
+
+
+def emit(payload, stream=sys.stdout):
+    print(json.dumps(payload), file=stream)
+
+
+def remaining_timeout_ms(deadline):
+    return max(1, int((deadline - time.time()) * 1000))
+
+
+def completion_statuses_to_watch(baseline_status, saw_working):
+    if saw_working:
+        return COMPLETION_STATUSES
+    return tuple(status for status in COMPLETION_STATUSES if status != baseline_status)
+
+
+def build_waiters(pane_id, timeout_ms, baseline_status, saw_working):
+    statuses = []
+    if not saw_working:
+        statuses.append("working")
+    statuses.extend(completion_statuses_to_watch(baseline_status, saw_working))
+    statuses.extend(ATTENTION_STATUSES)
+    return {status: wait_status(pane_id, status, timeout_ms) for status in statuses}
+
+
+def add_completion_waiters(waiters, pane_id, deadline):
+    timeout_ms = remaining_timeout_ms(deadline)
+    for status in COMPLETION_STATUSES:
+        if status not in waiters:
+            waiters[status] = wait_status(pane_id, status, timeout_ms)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Run a prompt in a herdr agent pane and wait for completion."
+    )
+    parser.add_argument("pane_id")
+    parser.add_argument("prompt")
+    parser.add_argument("--timeout", type=int, default=120000, help="total wait timeout in ms")
+    args = parser.parse_args()
+
+    baseline_status, baseline_result = pane_status(args.pane_id)
+    if baseline_status is None:
+        emit(
+            {
+                "error": "could not read baseline pane status",
+                "pane_id": args.pane_id,
+                "pane_get_stderr": baseline_result.stderr.strip() if baseline_result else None,
+            },
+            stream=sys.stderr,
+        )
+        return 1
+
+    deadline = time.time() + (args.timeout / 1000)
+    saw_working = baseline_status == "working"
+    waiters = build_waiters(args.pane_id, args.timeout, baseline_status, saw_working)
+
+    run_result = subprocess.run(
+        ["herdr", "pane", "run", args.pane_id, args.prompt],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if run_result.returncode != 0:
+        stop_processes(list(waiters.values()))
+        emit(
+            {
+                "error": "pane run failed",
+                "pane_id": args.pane_id,
+                "baseline_status": baseline_status,
+                "pane_run_stderr": run_result.stderr.strip(),
+                "pane_run_stdout": run_result.stdout.strip(),
+            },
+            stream=sys.stderr,
+        )
+        return 1
+
+    while time.time() < deadline:
+        for status, proc in list(waiters.items()):
+            if proc.poll() is None:
+                continue
+            stdout, stderr = finish_process(proc)
+            if proc.returncode != 0:
+                waiters.pop(status, None)
+                continue
+            event = parse_event(stdout)
+
+            if status == "working":
+                saw_working = True
+                waiters.pop(status)
+                add_completion_waiters(waiters, args.pane_id, deadline)
+                break
+
+            if status in ATTENTION_STATUSES:
+                stop_processes(list(waiters.values()))
+                emit(
+                    {
+                        "completed_status": None,
+                        "status": status,
+                        "phase": "attention",
+                        "pane_id": args.pane_id,
+                        "baseline_status": baseline_status,
+                        "saw_working": saw_working,
+                        "event": event,
+                    }
+                )
+                return 2
+
+            if saw_working or status != baseline_status:
+                stop_processes(list(waiters.values()))
+                emit(
+                    {
+                        "completed_status": status,
+                        "status": status,
+                        "phase": "completion",
+                        "pane_id": args.pane_id,
+                        "baseline_status": baseline_status,
+                        "saw_working": saw_working,
+                        "evidence": "working_then_terminal" if saw_working else "terminal_status_changed",
+                        "event": event,
+                    }
+                )
+                return 0
+
+        time.sleep(0.05)
+
+    stop_processes(list(waiters.values()))
+    status, result = pane_status(args.pane_id)
+    emit(
+        {
+            "error": "timed out waiting for a new completion signal",
+            "pane_id": args.pane_id,
+            "baseline_status": baseline_status,
+            "last_status": status,
+            "saw_working": saw_working,
+            "pane_get_stderr": result.stderr.strip() if result else None,
+        },
+        stream=sys.stderr,
+    )
+    return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

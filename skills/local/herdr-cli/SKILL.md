@@ -170,6 +170,66 @@ herdr wait agent-status 1-1 --status done --timeout 60000
 
 use this when you want the same `done` / `idle` distinction the UI shows.
 
+## wait for an agent task to complete
+
+`wait agent-status` is level-triggered: if the pane is already in the requested status, it returns immediately. so a stale `idle` or `done` from a previous task looks identical to a fresh completion. there is no native OR between `idle` and `done`, and no `--wait done` shortcut.
+
+two helper scripts wrap this safely. resolve them relative to this `SKILL.md`:
+
+```bash
+HERDR_CLI_SKILL_DIR=<directory containing this SKILL.md>
+RUN_WAIT="$HERDR_CLI_SKILL_DIR/scripts/herdr-agent-run-and-wait"
+WAIT_COMPLETE="$HERDR_CLI_SKILL_DIR/scripts/herdr-agent-wait-complete"
+```
+
+both treat `idle` and `done` as completion, and `blocked` as needs-attention.
+
+### send a new task and wait — `herdr-agent-run-and-wait`
+
+use this whenever you are about to send a prompt. it records the pane's baseline status, sends the prompt, then waits for `working`, `idle`, `done`, or `blocked`:
+
+```bash
+"$RUN_WAIT" 1-3 "review the test coverage in src/api/" --timeout 120000
+herdr pane read 1-3 --source recent-unwrapped --lines 120
+```
+
+recording the baseline before sending is what makes it safe: it only counts a *new* terminal status as completion, not a leftover one. if the task is so fast it returns to its previous status without the helper ever seeing `working`, the helper times out instead of guessing — read the pane and verify manually in that case.
+
+### wait on an already-running task — `herdr-agent-wait-complete`
+
+use this only when the task is already in flight and you did not start it through `run-and-wait`. it first waits briefly for `working` (so a pre-task `idle`/`done` is not mistaken for completion), then races `idle` / `done` / `blocked`:
+
+```bash
+"$WAIT_COMPLETE" 1-3 --timeout 120000
+herdr pane read 1-3 --source recent-unwrapped --lines 120
+```
+
+if the task already finished before this helper starts, it can fail because it never sees `working`. it can run for up to `--start-timeout + --timeout` wall-clock time.
+
+if you are sure the task is running and only want to race the terminal statuses, skip the working check:
+
+```bash
+"$WAIT_COMPLETE" 1-3 --no-wait-working --timeout 120000
+```
+
+`--no-wait-working` is unsafe for fresh tasks: it can treat an existing `idle` or `done` as completion. prefer `run-and-wait` for new prompts.
+
+### exit codes (both helpers)
+
+- `0` — completed as `idle` or `done`.
+- `1` — failed or timed out.
+- `2` — reached `blocked`; read the pane and respond instead of waiting longer.
+
+on timeout, inspect in this order:
+
+```bash
+herdr pane get 1-3
+herdr pane read 1-3 --source recent-unwrapped --lines 120
+herdr pane list
+```
+
+run one task at a time per agent pane; queued tasks make status attribution ambiguous. for deterministic shell commands, prefer `wait output` on the command's own output over these agent-status helpers.
+
 ## send text or keys to a pane
 
 send text without pressing Enter:
@@ -299,8 +359,11 @@ herdr pane read 1-3 --source recent-unwrapped --lines 40
 herdr pane split 1-2 --direction right --no-focus
 herdr pane run 1-3 "claude"
 herdr wait output 1-3 --match ">" --timeout 15000
-herdr pane run 1-3 "review the test coverage in src/api/"
+"$RUN_WAIT" 1-3 "review the test coverage in src/api/" --timeout 120000
+herdr pane read 1-3 --source recent-unwrapped --lines 120
 ```
+
+see [wait for an agent task to complete](#wait-for-an-agent-task-to-complete) for how `$RUN_WAIT` is resolved and why it is safer than a bare `wait agent-status`.
 
 ### coordinate with another agent
 
@@ -316,6 +379,7 @@ herdr pane read 1-1 --source recent --lines 100
 - `pane read --format ansi` or `pane read --ansi` returns a rendered ANSI snapshot for TUI feedback loops.
 - `pane read --source recent-unwrapped` is useful when you want to inspect the same unwrapped transcript that `wait output --source recent` matches against.
 - `pane send-text`, `pane send-keys`, and `pane run` print nothing on success.
+- the `scripts/herdr-agent-run-and-wait` and `scripts/herdr-agent-wait-complete` helpers (resolved relative to this `SKILL.md`) print json and wrap `wait agent-status` so a stale `idle` / `done` is not mistaken for a fresh completion. use `run-and-wait` when sending a new task, `wait-complete` only for a task already in flight.
 - parse ids from `workspace create`, `tab create`, and `pane split` responses when you need new ids. `workspace create` returns `result.workspace`, `result.tab`, and `result.root_pane`. `tab create` returns `result.tab` and `result.root_pane`. for `pane split`, the new pane id is at `result.pane.pane_id`.
 - use `pane read` for current output that already exists. use `wait output` for future output you expect next.
 - `--no-focus` on split, tab create, and workspace create keeps your current terminal context focused.

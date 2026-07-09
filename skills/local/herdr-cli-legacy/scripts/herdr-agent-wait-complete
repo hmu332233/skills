@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import subprocess
+import sys
+import time
+
+
+COMPLETION_STATUSES = ("idle", "done")
+ATTENTION_STATUSES = ("blocked",)
+WATCHED_STATUSES = COMPLETION_STATUSES + ATTENTION_STATUSES
+
+
+def run_json(args):
+    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if result.returncode != 0:
+        return None, result
+    try:
+        return json.loads(result.stdout), result
+    except json.JSONDecodeError:
+        return None, result
+
+
+def pane_status(pane_id):
+    data, result = run_json(["herdr", "pane", "get", pane_id])
+    if data is None:
+        return None, result
+    return data["result"]["pane"].get("agent_status"), result
+
+
+def wait_status(pane_id, status, timeout_ms):
+    return subprocess.Popen(
+        ["herdr", "wait", "agent-status", pane_id, "--status", status, "--timeout", str(timeout_ms)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+
+def wait_for_start(pane_id, start_timeout_ms):
+    deadline = time.time() + (start_timeout_ms / 1000)
+    last_status = None
+    last_error = None
+    while time.time() < deadline:
+        status, result = pane_status(pane_id)
+        if status is None:
+            last_error = result.stderr.strip() or result.stdout.strip()
+        else:
+            last_status = status
+            if status == "working":
+                return "working", None
+            if status in ATTENTION_STATUSES:
+                return status, None
+        time.sleep(0.1)
+    return last_status, last_error
+
+
+def race_completion(pane_id, timeout_ms):
+    procs = {status: wait_status(pane_id, status, timeout_ms) for status in WATCHED_STATUSES}
+    deadline = time.time() + (timeout_ms / 1000)
+    winner = None
+
+    while time.time() < deadline:
+        for status, proc in list(procs.items()):
+            rc = proc.poll()
+            if rc is not None:
+                stdout, stderr = proc.communicate()
+                if rc == 0:
+                    winner = (status, stdout.strip(), stderr.strip())
+                    break
+                procs.pop(status, None)
+        if winner:
+            break
+        time.sleep(0.1)
+
+    for proc in procs.values():
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+    return winner
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Wait for a herdr agent task to complete as idle/done, or return promptly on blocked."
+    )
+    parser.add_argument("pane_id")
+    parser.add_argument("--timeout", type=int, default=120000, help="completion timeout in ms")
+    parser.add_argument(
+        "--start-timeout",
+        type=int,
+        default=10000,
+        help="time in ms to observe working before racing idle/done",
+    )
+    parser.add_argument(
+        "--no-wait-working",
+        action="store_true",
+        help="skip the initial working observation and immediately race idle/done",
+    )
+    args = parser.parse_args()
+
+    if not args.no_wait_working:
+        start_status, start_error = wait_for_start(args.pane_id, args.start_timeout)
+        if start_status in ATTENTION_STATUSES:
+            print(
+                json.dumps(
+                    {
+                        "completed_status": None,
+                        "status": start_status,
+                        "phase": "attention",
+                        "pane_id": args.pane_id,
+                        "event": None,
+                    }
+                )
+            )
+            return 2
+        if start_status != "working":
+            print(
+                json.dumps(
+                    {
+                        "error": "agent did not enter working before start timeout",
+                        "pane_id": args.pane_id,
+                        "last_status": start_status,
+                        "last_error": start_error,
+                    }
+                ),
+                file=sys.stderr,
+            )
+            return 1
+
+    winner = race_completion(args.pane_id, args.timeout)
+    if winner:
+        status, stdout, stderr = winner
+        phase = "attention" if status in ATTENTION_STATUSES else "completion"
+        print(
+            json.dumps(
+                {
+                    "completed_status": status if status in COMPLETION_STATUSES else None,
+                    "status": status,
+                    "phase": phase,
+                    "pane_id": args.pane_id,
+                    "event": json.loads(stdout) if stdout else None,
+                }
+            )
+        )
+        return 2 if status in ATTENTION_STATUSES else 0
+
+    status, result = pane_status(args.pane_id)
+    print(
+        json.dumps(
+            {
+                "error": "timed out waiting for idle, done, or blocked",
+                "pane_id": args.pane_id,
+                "last_status": status,
+                "pane_get_stderr": result.stderr.strip() if result else None,
+            }
+        ),
+        file=sys.stderr,
+    )
+    return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

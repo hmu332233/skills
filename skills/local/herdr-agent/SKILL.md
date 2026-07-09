@@ -60,6 +60,8 @@ NEW_PANE=$(herdr workspace create --cwd "$CWD" --no-focus \
   | python3 -c 'import sys,json; print(json.load(sys.stdin)["result"]["root_pane"]["pane_id"])')
 ```
 
+Give the new tab a purpose label (`herdr tab create ... --label "review"`) whenever the task names one — the user's sidebar stays readable and you can re-find the pane later by label instead of a compactable id.
+
 ### 3. Start the agent and wait until idle — the core
 
 Use herdr's `agent_status` as the primary ready signal (not the on-screen text). A new pane is an empty shell, so it reads `unknown`; the moment you start the agent and herdr detects it, it becomes `idle`. This primary check is the same regardless of agent type.

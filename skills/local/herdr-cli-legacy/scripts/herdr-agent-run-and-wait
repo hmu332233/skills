@@ -114,34 +114,25 @@ def main():
     saw_working = baseline_status == "working"
     waiters = build_waiters(args.pane_id, args.timeout, baseline_status, saw_working)
 
-    # send the text and the Enter as separate requests with a short pause in
-    # between: an atomic text+Enter (pane run) can race the TUI's paste
-    # handling, which swallows the Enter and leaves the prompt unsubmitted.
-    for step_args, step_name in (
-        (["herdr", "pane", "send-text", args.pane_id, args.prompt], "pane send-text"),
-        (["herdr", "pane", "send-keys", args.pane_id, "Enter"], "pane send-keys Enter"),
-    ):
-        if step_name.startswith("pane send-keys"):
-            time.sleep(0.5)
-        run_result = subprocess.run(
-            step_args,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
+    run_result = subprocess.run(
+        ["herdr", "pane", "run", args.pane_id, args.prompt],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if run_result.returncode != 0:
+        stop_processes(list(waiters.values()))
+        emit(
+            {
+                "error": "pane run failed",
+                "pane_id": args.pane_id,
+                "baseline_status": baseline_status,
+                "pane_run_stderr": run_result.stderr.strip(),
+                "pane_run_stdout": run_result.stdout.strip(),
+            },
+            stream=sys.stderr,
         )
-        if run_result.returncode != 0:
-            stop_processes(list(waiters.values()))
-            emit(
-                {
-                    "error": f"{step_name} failed",
-                    "pane_id": args.pane_id,
-                    "baseline_status": baseline_status,
-                    "stderr": run_result.stderr.strip(),
-                    "stdout": run_result.stdout.strip(),
-                },
-                stream=sys.stderr,
-            )
-            return 1
+        return 1
 
     while time.time() < deadline:
         for status, proc in list(waiters.items()):

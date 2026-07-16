@@ -47,7 +47,8 @@ function findRepoRoot() {
 
 const REPO = findRepoRoot();
 const LOCK_PATH = join(REPO, "skills-lock.json");
-const IMPORTED_DIR = join(REPO, "skills", "imported");
+// Scan both imported and taste: both hold external skills keyed by name in the lock.
+const SCAN_DIRS = [join(REPO, "skills", "imported"), join(REPO, "skills", "taste")];
 
 function fail(msg) {
   console.error(`error: ${msg}`);
@@ -55,7 +56,8 @@ function fail(msg) {
 }
 
 if (!existsSync(LOCK_PATH)) fail(`skills-lock.json not found at ${LOCK_PATH}`);
-if (!existsSync(IMPORTED_DIR)) fail(`skills/imported not found at ${IMPORTED_DIR}`);
+const scanDirs = SCAN_DIRS.filter(existsSync);
+if (!scanDirs.length) fail(`no scan dirs found (${SCAN_DIRS.join(", ")})`);
 
 let lock;
 try {
@@ -86,15 +88,18 @@ function serialize(p) {
   return JSON.stringify(p, null, 2) + "\n";
 }
 
-const dirs = readdirSync(IMPORTED_DIR).filter((d) =>
-  statSync(join(IMPORTED_DIR, d)).isDirectory()
+// Collect {name, dir} for every skill subdirectory across all scan dirs.
+const entries = scanDirs.flatMap((base) =>
+  readdirSync(base)
+    .filter((d) => statSync(join(base, d)).isDirectory())
+    .map((name) => ({ name, dir: base }))
 );
 
 const results = [];
 let wrote = 0;
 
-for (const name of dirs.sort()) {
-  const provPath = join(IMPORTED_DIR, name, "provenance.json");
+for (const { name, dir } of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+  const provPath = join(dir, name, "provenance.json");
   const expected = expectedProvenance(name);
   const r = { skill: name, status: "ok", detail: "", problems: [] };
 

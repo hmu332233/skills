@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Imported Skill Provenance
 
-Each **Imported Skill** under `skills/imported/<skill>/` is the pair `SKILL.md` + `provenance.json`. The `provenance.json` is the canonical **Skill Provenance** record — where the skill came from and the source revision/hash imported. `skills-lock.json` at the repo root is the **Skill Lock File**, a catalog-wide maintenance record. See `CONTEXT.md` for the exact domain definitions and `README.md` for the directory layout.
+Each **Imported Skill** under `skills/imported/<skill>/` (and `skills/taste/<skill>/`) is the pair `SKILL.md` + `provenance.json`. The `provenance.json` is the canonical **Skill Provenance** record — where the skill came from and the source revision/hash imported. `skills-lock.json` at the repo root is the **Skill Lock File**, a catalog-wide maintenance record. See `CONTEXT.md` for the exact domain definitions and `README.md` for the directory layout.
 
 ## Source of truth
 

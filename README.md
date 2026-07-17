@@ -122,13 +122,18 @@ minung-skills add --root --claude
 Broken symlink만 정리하려면 `clean`을 사용합니다.
 
 ```sh
+minung-skills clean
 minung-skills clean --root
 minung-skills clean --project
 minung-skills clean --root --claude
 minung-skills clean --project --yes
 ```
 
-`clean`은 삭제 전에 broken symlink 목록을 보여주고, 정리 후 실제 삭제된 항목을 다시 출력합니다. `--yes`를 쓰면 확인 질문만 건너뜁니다.
+목적지 flag(`--root`/`--project`) 없이 `clean`을 실행하면 `add`와 동일한 목적지 select UI가 떠서 대상을 고릅니다. (`--root --project`를 함께 주면 기존처럼 에러입니다.)
+
+`clean`은 삭제 전에 broken symlink 목록을 보여준 뒤, 각 항목을 `이름 -> 가리키던 경로`로 표시한 checkbox를 엽니다. 모든 항목이 기본 체크되어 있으므로 남기고 싶은 것만 해제하고 나머지를 정리하면 됩니다. 선택한 항목만 삭제되고, 실제 삭제된 목록이 다시 출력됩니다. 아무것도 선택하지 않으면 아무것도 삭제하지 않습니다.
+
+`--yes`를 쓰면 UI 없이 broken symlink 전체를 즉시 삭제하며(자동화용), broken 목록과 삭제 목록은 그대로 출력합니다. `broken` 링크가 없으면 UI 없이 안내 후 종료합니다. `external`/`not-symlink` 항목은 `clean` 대상이 아닙니다.
 
 ## 주의사항
 

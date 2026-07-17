@@ -207,11 +207,15 @@ export function listRegisteredSkills(targetDir: string): RegisteredSkill[] {
   }
 }
 
-export function removeBrokenSkillLinks(targetDir: string): RemovedBrokenSkill[] {
+export function removeBrokenSkillLinks(
+  targetDir: string,
+  names?: readonly string[]
+): RemovedBrokenSkill[] {
   const removed: RemovedBrokenSkill[] = [];
 
   for (const entry of listRegisteredSkills(targetDir)) {
     if (entry.status !== "broken") continue;
+    if (names && !names.includes(entry.name)) continue;
 
     unlinkSync(join(targetDir, entry.name));
     removed.push({ name: entry.name, target: entry.target });

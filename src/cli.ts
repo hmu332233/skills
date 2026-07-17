@@ -28,12 +28,12 @@ Commands:
                                       Register one or more skills as symlinks
   add --root|--project [--claude]
                                       Open the interactive UI with a preselected target
-  clean --root|--project [--claude] [--yes]
-                                      Remove broken skill symlinks from one target
+  clean [--root|--project] [--claude] [--yes]
+                                      Remove broken skill symlinks (picks target via UI if no flag)
 
 Options:
   --claude  Use .claude/skills instead of .agents/skills
-  --yes     Skip clean confirmation
+  --yes     Remove all broken links without prompting
   --help    Show this help message
 `.trim();
 
@@ -264,15 +264,13 @@ async function cmdClean(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  if (!values.root && !values.project) {
-    console.error(`Error: specify either --root or --project.\n\n${usage}`);
-    process.exit(1);
-  }
-
-  const destination: Destination = {
-    scope: values.root ? "root" : "project",
-    target: values.claude ? "claude" : "agents",
-  };
+  const destination: Destination =
+    !values.root && !values.project
+      ? await chooseDestination()
+      : {
+          scope: values.root ? "root" : "project",
+          target: values.claude ? "claude" : "agents",
+        };
 
   await cleanBrokenLinks(destination, { skipConfirmation: values.yes });
 }
@@ -423,6 +421,7 @@ async function cleanBrokenLinks(
   options: { skipConfirmation?: boolean } = {}
 ): Promise<boolean> {
   const broken = brokenSkillsForDestination(destination);
+
   if (broken.length === 0) {
     console.log(`No broken skill links in ${destinationLabel(destination)}.`);
     return false;
@@ -430,23 +429,32 @@ async function cleanBrokenLinks(
 
   printBrokenSkills(destination);
 
-  const shouldRemove =
-    options.skipConfirmation ??
-    (await confirm({
-      message: `Remove ${broken.length} broken link(s) from ${destinationLabel(
-        destination
-      )}?`,
-      default: true,
-    }));
+  if (options.skipConfirmation) {
+    return printRemoved(removeBrokenSkillLinks(targetDir(destination)));
+  }
 
-  if (!shouldRemove) {
-    console.log("Clean cancelled.");
+  const selected = await checkbox({
+    message: `Select broken links to remove from ${destinationLabel(
+      destination
+    )}`,
+    choices: broken.map((entry) => ({
+      name: `${entry.name}${entry.target ? ` -> ${entry.target}` : ""}`,
+      value: entry.name,
+      checked: true,
+    })),
+  });
+
+  if (selected.length === 0) {
+    console.log("No links removed.");
     return false;
   }
 
-  const removed = removeBrokenSkillLinks(targetDir(destination));
+  return printRemoved(removeBrokenSkillLinks(targetDir(destination), selected));
+}
+
+function printRemoved(removed: ReturnType<typeof removeBrokenSkillLinks>): boolean {
   if (removed.length === 0) {
-    console.log("No broken links removed.");
+    console.log("No links removed.");
     return false;
   }
 

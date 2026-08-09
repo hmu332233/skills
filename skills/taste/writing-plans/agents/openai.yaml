@@ -1,0 +1,5 @@
+interface:
+  display_name: "Writing Plans"
+  short_description: "Guidance for creating multi-step plans"
+policy:
+  allow_implicit_invocation: false

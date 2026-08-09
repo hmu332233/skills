@@ -1,0 +1,5 @@
+interface:
+  display_name: "Caveman Review"
+  short_description: "Ultra-compressed code review comments"
+policy:
+  allow_implicit_invocation: false

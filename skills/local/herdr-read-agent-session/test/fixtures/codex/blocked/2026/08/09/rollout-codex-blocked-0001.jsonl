@@ -1,0 +1,4 @@
+{"type":"session_meta","payload":{"id":"codex-blocked-0001","cwd":"/workspace/blocked"}}
+{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"perform the protected action"}]}}
+{"type":"response_item","payload":{"type":"message","role":"assistant","phase":"commentary","content":[{"type":"output_text","text":"I need permission before continuing."}]}}
+{"type":"response_item","payload":{"type":"custom_tool_call","name":"request_permission","call_id":"call-blocked","input":"protected action"}}

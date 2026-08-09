@@ -1,0 +1,5 @@
+{"type":"session_meta","payload":{"id":"codex-malformed-0001","cwd":"/workspace/malformed"}}
+{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"request before partial write"}]}}
+{"type":"response_item","payload":{"type":"message","role":"assistant","phase":"final_answer","content":[{"type":"output_text","text":"complete response before partial write"}]}}
+{"type":"event_msg","payload":{"type":"task_complete"}}
+{"type":"response_item","payload":{"type":"message"

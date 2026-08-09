@@ -1,0 +1,4 @@
+{"type":"session_meta","payload":{"id":"codex-working-0001","cwd":"/workspace/working"}}
+{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"run the long check"}]}}
+{"type":"response_item","payload":{"type":"message","role":"assistant","phase":"commentary","content":[{"type":"output_text","text":"I am starting the check."}]}}
+{"type":"response_item","payload":{"type":"custom_tool_call","name":"exec","call_id":"call-working","input":"long-check"}}

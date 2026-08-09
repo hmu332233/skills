@@ -1,0 +1,4 @@
+{"type":"user","sessionId":"claude-reused-0001","cwd":"/workspace/reused","uuid":"old-user","message":{"role":"user","content":"old Claude request"}}
+{"type":"assistant","sessionId":"claude-reused-0001","cwd":"/workspace/reused","uuid":"old-assistant","message":{"role":"assistant","stop_reason":"end_turn","content":[{"type":"text","text":"old Claude response"}]}}
+{"type":"user","sessionId":"claude-reused-0001","cwd":"/workspace/reused","uuid":"new-user","message":{"role":"user","content":[{"type":"text","text":"new Claude request"}]}}
+{"type":"assistant","sessionId":"claude-reused-0001","cwd":"/workspace/reused","uuid":"new-assistant","message":{"role":"assistant","stop_reason":"end_turn","content":[{"type":"text","text":"new Claude response"}]}}

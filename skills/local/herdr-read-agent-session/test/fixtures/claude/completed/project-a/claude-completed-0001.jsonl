@@ -1,0 +1,4 @@
+{"type":"system","sessionId":"claude-completed-0001","cwd":"/workspace/completed","message":{"content":"system secret that must not be returned"}}
+{"type":"user","sessionId":"claude-completed-0001","cwd":"/workspace/completed","uuid":"user-1","message":{"role":"user","content":"  Check this result exactly.  "}}
+{"type":"user","sessionId":"claude-completed-0001","cwd":"/workspace/completed","uuid":"meta-user","isMeta":true,"message":{"role":"user","content":"<system-reminder>fixture metadata</system-reminder>"}}
+{"type":"assistant","sessionId":"claude-completed-0001","cwd":"/workspace/completed","uuid":"assistant-1","message":{"role":"assistant","stop_reason":"end_turn","content":[{"type":"thinking","thinking":"private reasoning"},{"type":"text","text":"Claude first line\n"},{"type":"text","text":"Claude second line  "}]}}

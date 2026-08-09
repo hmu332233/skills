@@ -1,0 +1,13 @@
+{"timestamp":"2026-08-09T00:00:00Z","type":"session_meta","payload":{"id":"codex-completed-0001","cwd":"/workspace/completed"}}
+{"timestamp":"2026-08-09T00:00:01Z","type":"response_item","payload":{"type":"message","role":"developer","content":[{"type":"input_text","text":"developer secret that must not be returned"}]}}
+{"timestamp":"2026-08-09T00:00:01Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"# AGENTS.md instructions for /workspace/completed\n\n<INSTRUCTIONS>\nfixture harness instructions\n</INSTRUCTIONS>"}]}}
+{"timestamp":"2026-08-09T00:00:02Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"  Review this diff exactly.\nKeep spacing.  "}]}}
+{"timestamp":"2026-08-09T00:00:02Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"<environment_context>fixture metadata</environment_context>"}]}}
+{"timestamp":"2026-08-09T00:00:02Z","type":"event_msg","payload":{"type":"thread_settings_applied"}}
+{"timestamp":"2026-08-09T00:00:03Z","type":"response_item","payload":{"type":"message","role":"assistant","phase":"commentary","content":[{"type":"output_text","text":"Checking now."}]}}
+{"timestamp":"2026-08-09T00:00:04Z","type":"response_item","payload":{"type":"custom_tool_call","name":"exec","call_id":"call-1","input":"git diff"}}
+{"timestamp":"2026-08-09T00:00:05Z","type":"response_item","payload":{"type":"custom_tool_call_output","call_id":"call-1","output":"TOKEN=fixture-secret"}}
+{"timestamp":"2026-08-09T00:00:06Z","type":"response_item","payload":{"type":"reasoning","summary":[{"type":"summary_text","text":"private reasoning"}]}}
+{"timestamp":"2026-08-09T00:00:07Z","type":"response_item","payload":{"type":"message","role":"assistant","phase":"final_answer","content":[{"type":"output_text","text":"First line  \n"},{"type":"output_text","text":"Second **line**"}]}}
+{"timestamp":"2026-08-09T00:00:07Z","type":"event_msg","payload":{"type":"item_completed"}}
+{"timestamp":"2026-08-09T00:00:08Z","type":"event_msg","payload":{"type":"task_complete","last_agent_message":"duplicate lifecycle copy"}}

@@ -1,0 +1,6 @@
+{"type":"session_meta","payload":{"id":"codex-drift-0001","cwd":"/workspace/drift"}}
+{"type":"new_world_record","payload":{"secret":"do not expose"}}
+{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"handle schema drift"}]}}
+{"type":"event_msg","payload":{"type":"future_event"}}
+{"type":"response_item","payload":{"type":"message","role":"assistant","phase":"final_answer","content":[{"type":"output_text","text":"drift-safe response"}]}}
+{"type":"event_msg","payload":{"type":"task_complete"}}

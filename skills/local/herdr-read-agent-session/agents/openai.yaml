@@ -1,0 +1,4 @@
+interface:
+  display_name: "Herdr Agent Session Reader"
+  short_description: "Read exact Codex or Claude replies from Herdr sessions"
+  default_prompt: "Use $herdr-read-agent-session to read the latest response from the specified Herdr agent session without using terminal output."

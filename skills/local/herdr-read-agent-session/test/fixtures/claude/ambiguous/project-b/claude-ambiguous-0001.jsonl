@@ -1,0 +1,2 @@
+{"type":"user","sessionId":"claude-ambiguous-0001","cwd":"/workspace/ambiguous-b","uuid":"ambiguous-user-b","message":{"role":"user","content":"ambiguous B"}}
+{"type":"assistant","sessionId":"claude-ambiguous-0001","cwd":"/workspace/ambiguous-b","uuid":"ambiguous-assistant-b","message":{"role":"assistant","stop_reason":"end_turn","content":[{"type":"text","text":"B"}]}}

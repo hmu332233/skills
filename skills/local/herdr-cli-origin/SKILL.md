@@ -1,5 +1,5 @@
 ---
-name: herdr-cli
+name: herdr-cli-origin
 description: "Control Herdr, a terminal multiplexer for coding agents. Use only when the user explicitly mentions Herdr or asks to use Herdr to inspect or control panes, tabs, workspaces, commands, or another agent. Do not use merely because a task could benefit from a background terminal, delegation, or parallel work. Requires HERDR_ENV=1."
 ---
 
@@ -153,8 +153,6 @@ herdr agent read reviewer --source recent-unwrapped --lines 120
 
 If a wait fails or returns `blocked`, inspect `agent get` and `agent read` before deciding what input to send. Use the pane surface only when raw terminal control is intentional.
 
-For the verbatim text of an agent's reply, use the `herdr-read-agent-session` skill — `agent read` shows the rendered terminal, not the transcript.
-
 ## Run an ordinary command in another pane
 
 Create a sibling pane with the same geometry rule, preserve the caller's working directory, and keep user focus unchanged:
@@ -184,7 +182,7 @@ Use `--format ansi` when colors and terminal styling are evidence. Otherwise use
 
 `--lines` asks Herdr for more rows from the pane's available screen and host scrollback. If increasing it does not reveal more of a completed response, the pane is probably running the agent on the terminal's alternate screen. Rows that leave the alternate screen do not enter Herdr's host scrollback, so a larger line count cannot recover them.
 
-After that failed read, use the `herdr-read-agent-session` skill to read the response from the provider transcript. Only if the target has no `agent_session`, ask the agent to write its complete response as Markdown in a temporary directory and reply only with the file path, then read the file directly.
+After that failed read, ask the agent to write its complete response as Markdown in a temporary directory and reply only with the file path, then read the file directly. Use this only as a fallback; do not request file output in the initial prompt.
 
 ## Safety and coordination rules
 

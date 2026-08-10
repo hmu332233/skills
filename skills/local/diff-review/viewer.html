@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diff Review</title>
+  <!-- diff2html 3.4.56 (MIT, https://github.com/rtfpessoa/diff2html) + highlight.js One Dark 테마를 CDN에서 로드한다 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html@3.4.56/bundles/css/diff2html.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/atom-one-dark.min.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --text: #17212b;
+      --muted: #5f6b76;
+      --border: #d8dee4;
+      --accent: #0969da;
+      --accent-soft: #ddf4ff;
+      --danger: #cf222e;
+      --shadow: 0 1px 2px rgba(27, 31, 36, 0.06), 0 8px 24px rgba(140, 149, 159, 0.12);
+
+      /* diff 에디터 전용 One Dark 팔레트 — diff2html 다크 스킴 변수 재정의 */
+      --d2h-dark-bg-color: #282c34;
+      --d2h-dark-color: #abb2bf;
+      --d2h-dark-border-color: #3e4451;
+      --d2h-dark-line-border-color: #3e4451;
+      --d2h-dark-file-header-bg-color: #21252b;
+      --d2h-dark-file-header-border-color: #181a1f;
+      --d2h-dark-dim-color: #5c6370;
+      --d2h-dark-selected-color: rgba(97, 175, 239, 0.2);
+      --d2h-dark-ins-bg-color: rgba(152, 195, 121, 0.13);
+      --d2h-dark-ins-border-color: rgba(152, 195, 121, 0.4);
+      --d2h-dark-ins-label-color: #98c379;
+      --d2h-dark-ins-highlight-bg-color: rgba(152, 195, 121, 0.35);
+      --d2h-dark-del-bg-color: rgba(224, 108, 117, 0.13);
+      --d2h-dark-del-border-color: rgba(224, 108, 117, 0.4);
+      --d2h-dark-del-label-color: #e06c75;
+      --d2h-dark-del-highlight-bg-color: rgba(224, 108, 117, 0.35);
+      /* 짝지어진 변경 줄(change)과 순수 추가/삭제 줄의 배경을 동일하게 맞춘다 */
+      --d2h-dark-change-ins-color: rgba(152, 195, 121, 0.13);
+      --d2h-dark-change-del-color: rgba(224, 108, 117, 0.13);
+      --d2h-dark-change-label-color: #d19a66;
+      --d2h-dark-info-bg-color: rgba(97, 175, 239, 0.12);
+      --d2h-dark-info-border-color: rgba(97, 175, 239, 0.3);
+      --d2h-dark-empty-placeholder-bg-color: #2c313a;
+      --d2h-dark-empty-placeholder-border-color: #3e4451;
+      --d2h-dark-moved-label-color: #c678dd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button { font: inherit; }
+
+    .page {
+      width: min(1600px, 100%);
+      margin: 0 auto;
+      padding: 32px clamp(16px, 3vw, 48px) 64px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .hero__eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 40px);
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+    }
+
+    .summary {
+      max-width: 900px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      white-space: pre-wrap;
+    }
+
+    .toolbar {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 0 calc(clamp(16px, 3vw, 48px) * -1) 20px;
+      padding: 12px clamp(16px, 3vw, 48px);
+      border-block: 1px solid var(--border);
+      background: rgba(244, 246, 248, 0.94);
+      backdrop-filter: blur(10px);
+    }
+
+    .toolbar__count {
+      margin-right: auto;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .button-group { display: inline-flex; }
+
+    .button {
+      min-height: 34px;
+      padding: 6px 11px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .button:hover { border-color: #afb8c1; }
+    .button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .button-group .button:first-child { border-radius: 7px 0 0 7px; }
+    .button-group .button:last-child { margin-left: -1px; border-radius: 0 7px 7px 0; }
+    .button.is-active { position: relative; border-color: var(--accent); background: var(--accent-soft); color: #0550ae; }
+    .toolbar > .button { border-radius: 7px; }
+
+    .files { display: grid; gap: 18px; }
+
+    .file-card {
+      overflow: clip;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .file-card > summary {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 13px 16px;
+      background: #f6f8fa;
+      cursor: pointer;
+      font: 600 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      list-style: none;
+    }
+
+    .file-card > summary::-webkit-details-marker { display: none; }
+    .file-card > summary::before { content: "▸"; color: var(--muted); transition: transform 120ms ease; }
+    .file-card[open] > summary::before { transform: rotate(90deg); }
+    .file-card[open] > summary { border-bottom: 1px solid var(--border); }
+
+    .file-explanation,
+    .hunk-note {
+      margin: 0;
+      color: #3d4852;
+      white-space: pre-wrap;
+    }
+
+    .file-explanation { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .hunk { padding: 16px; }
+    .hunk + .hunk { border-top: 1px solid var(--border); }
+    .hunk-note { margin-bottom: 10px; padding: 10px 12px; border-left: 3px solid var(--accent); background: #f6f8fa; }
+    .diff-host { min-width: 0; overflow-x: auto; }
+    .file-body > .diff-host { padding: 16px; }
+
+    .d2h-wrapper { text-align: left; }
+
+    /* atom-one-dark 테마가 .hljs에 칠하는 불투명 배경이 diff 줄 배경(추가/삭제 색)을 덮지 않도록 */
+    .d2h-wrapper .hljs { padding: 0; background: transparent; }
+
+    .d2h-file-wrapper { margin-bottom: 0; border-color: var(--d2h-dark-file-header-border-color); }
+    .d2h-file-header { position: static; }
+
+    .status {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      white-space: pre-wrap;
+    }
+
+    .status--error { border-color: #ff8182; color: var(--danger); }
+
+    @media (max-width: 720px) {
+      .page { padding-top: 20px; }
+      .toolbar { position: static; }
+      .toolbar__count { width: 100%; }
+      .file-body > .diff-host, .hunk { padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="hero__eyebrow">Proposed changes</div>
+      <h1 id="title">Diff Review</h1>
+      <p id="summary" class="summary" hidden></p>
+    </header>
+
+    <section id="toolbar" class="toolbar" hidden aria-label="Diff 보기 설정">
+      <span id="file-count" class="toolbar__count"></span>
+      <div class="button-group" aria-label="Diff 레이아웃">
+        <button class="button is-active" id="side-by-side" type="button">Side-by-side</button>
+        <button class="button" id="line-by-line" type="button">Line-by-line</button>
+      </div>
+      <button class="button" id="toggle-files" type="button">모두 접기</button>
+    </section>
+
+    <div id="content" class="status">리뷰 데이터를 불러오는 중입니다…</div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/diff2html@3.4.56/bundles/js/diff2html-ui.min.js"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const elements = {
+        title: document.querySelector("#title"),
+        summary: document.querySelector("#summary"),
+        toolbar: document.querySelector("#toolbar"),
+        fileCount: document.querySelector("#file-count"),
+        content: document.querySelector("#content"),
+        sideBySide: document.querySelector("#side-by-side"),
+        lineByLine: document.querySelector("#line-by-line"),
+        toggleFiles: document.querySelector("#toggle-files")
+      };
+
+      let outputFormat = "side-by-side";
+      let reviewData;
+
+      function showError(message) {
+        elements.content.className = "status status--error";
+        elements.content.textContent = message;
+        elements.toolbar.hidden = true;
+      }
+
+      function assertData(data) {
+        if (!data || typeof data !== "object") throw new Error("window.REVIEW_DATA 객체가 없습니다.");
+        if (typeof data.title !== "string" || !data.title.trim()) throw new Error("title은 비어 있지 않은 문자열이어야 합니다.");
+        if (!Array.isArray(data.files) || data.files.length === 0) throw new Error("files는 한 개 이상의 항목을 가진 배열이어야 합니다.");
+        data.files.forEach((file, index) => {
+          if (!file || typeof file.path !== "string" || !file.path.trim()) throw new Error(`files[${index}].path가 필요합니다.`);
+          const hasDiff = typeof file.diff === "string" && file.diff.trim();
+          const hasHunks = Array.isArray(file.hunks) && file.hunks.length > 0;
+          if (hasDiff === hasHunks) throw new Error(`files[${index}]에는 diff 또는 hunks 중 하나만 필요합니다.`);
+          if (hasHunks && file.hunks.some((hunk) => !hunk || typeof hunk.diff !== "string" || !hunk.diff.trim())) {
+            throw new Error(`files[${index}].hunks의 모든 항목에 diff가 필요합니다.`);
+          }
+        });
+      }
+
+      function createTextElement(tag, className, value) {
+        const element = document.createElement(tag);
+        element.className = className;
+        element.textContent = value;
+        return element;
+      }
+
+      function addFileHeaders(path, diff) {
+        const trimmed = diff.trimStart();
+        if (trimmed.startsWith("--- ")) return diff;
+        if (trimmed.startsWith("@@ ")) return `--- a/${path}\n+++ b/${path}\n${trimmed}`;
+        return diff;
+      }
+
+      function addFileMetadata(path, diff) {
+        const trimmed = diff.trimStart();
+        if (trimmed.startsWith("diff --git ")) return diff;
+        const gitHeader = `diff --git a/${path} b/${path}\n`;
+        if (trimmed.startsWith("--- /dev/null\n")) return `${gitHeader}new file mode 100644\n${trimmed}`;
+        if (/^\+\+\+ \/dev\/null$/m.test(trimmed)) return `${gitHeader}deleted file mode 100644\n${trimmed}`;
+        return diff;
+      }
+
+      function drawDiff(host, diff, path) {
+        try {
+          const ui = new Diff2HtmlUI(host, addFileMetadata(path, diff), {
+            colorScheme: "dark",
+            drawFileList: false,
+            fileContentToggle: false,
+            fileListToggle: false,
+            matching: "words",
+            outputFormat,
+            stickyFileHeaders: false,
+            synchronisedScroll: true
+          });
+          ui.draw();
+        } catch (error) {
+          host.className = "status status--error";
+          host.textContent = `Diff를 렌더링하지 못했습니다: ${error.message}`;
+        }
+      }
+
+      function renderFile(file) {
+        const card = document.createElement("details");
+        card.className = "file-card";
+        card.open = true;
+
+        const label = document.createElement("summary");
+        label.textContent = file.path;
+        card.append(label);
+
+        const body = document.createElement("div");
+        body.className = "file-body";
+        if (typeof file.explanation === "string" && file.explanation) {
+          body.append(createTextElement("p", "file-explanation", file.explanation));
+        }
+
+        if (Array.isArray(file.hunks)) {
+          file.hunks.forEach((hunk) => {
+            const section = document.createElement("section");
+            section.className = "hunk";
+            if (typeof hunk.note === "string" && hunk.note) {
+              section.append(createTextElement("p", "hunk-note", hunk.note));
+            }
+            const host = document.createElement("div");
+            host.className = "diff-host";
+            section.append(host);
+            body.append(section);
+            drawDiff(host, addFileHeaders(file.path, hunk.diff), file.path);
+          });
+        } else {
+          const host = document.createElement("div");
+          host.className = "diff-host";
+          body.append(host);
+          drawDiff(host, file.diff, file.path);
+        }
+
+        card.append(body);
+        return card;
+      }
+
+      function render() {
+        const openPaths = new Set(
+          Array.from(document.querySelectorAll(".file-card[open] summary"), (summary) => summary.textContent)
+        );
+        const hasExistingCards = document.querySelector(".file-card") !== null;
+
+        elements.title.textContent = reviewData.title;
+        document.title = `${reviewData.title} · Diff Review`;
+        if (typeof reviewData.summary === "string" && reviewData.summary) {
+          elements.summary.textContent = reviewData.summary;
+          elements.summary.hidden = false;
+        } else {
+          elements.summary.hidden = true;
+        }
+
+        const files = document.createElement("section");
+        files.className = "files";
+        reviewData.files.forEach((file) => {
+          const card = renderFile(file);
+          if (hasExistingCards) card.open = openPaths.has(file.path);
+          files.append(card);
+        });
+        elements.content.replaceWith(files);
+        elements.content = files;
+        elements.fileCount.textContent = `${reviewData.files.length}개 파일`;
+        elements.toolbar.hidden = false;
+        updateCollapseButton();
+      }
+
+      function setOutputFormat(nextFormat) {
+        if (outputFormat === nextFormat) return;
+        outputFormat = nextFormat;
+        elements.sideBySide.classList.toggle("is-active", nextFormat === "side-by-side");
+        elements.lineByLine.classList.toggle("is-active", nextFormat === "line-by-line");
+        render();
+      }
+
+      function updateCollapseButton() {
+        const cards = Array.from(document.querySelectorAll(".file-card"));
+        elements.toggleFiles.textContent = cards.some((card) => card.open) ? "모두 접기" : "모두 펼치기";
+      }
+
+      elements.sideBySide.addEventListener("click", () => setOutputFormat("side-by-side"));
+      elements.lineByLine.addEventListener("click", () => setOutputFormat("line-by-line"));
+      elements.toggleFiles.addEventListener("click", () => {
+        const cards = Array.from(document.querySelectorAll(".file-card"));
+        const shouldOpen = !cards.some((card) => card.open);
+        cards.forEach((card) => { card.open = shouldOpen; });
+        updateCollapseButton();
+      });
+      document.addEventListener("toggle", (event) => {
+        if (event.target.matches?.(".file-card")) updateCollapseButton();
+      }, true);
+
+      function toFileUrl(path) {
+        if (path.startsWith("file://")) return path;
+        if (!path.startsWith("/")) throw new Error("data에는 절대경로를 전달해야 합니다.");
+        return `file://${path.split("/").map(encodeURIComponent).join("/")}`;
+      }
+
+      if (typeof Diff2HtmlUI === "undefined") {
+        showError("diff2html을 CDN에서 불러오지 못했습니다.\n네트워크 연결을 확인한 뒤 새로고침하세요.");
+        return;
+      }
+
+      const dataPath = new URLSearchParams(location.search).get("data");
+      if (!dataPath) {
+        showError("data 쿼리가 없습니다.\n예: viewer.html?data=%2Ftmp%2Freview.data.js");
+        return;
+      }
+
+      let dataUrl;
+      try {
+        dataUrl = toFileUrl(dataPath);
+      } catch (error) {
+        showError(error.message);
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = dataUrl;
+      script.onload = () => {
+        try {
+          assertData(window.REVIEW_DATA);
+          reviewData = window.REVIEW_DATA;
+          render();
+        } catch (error) {
+          showError(`리뷰 데이터가 올바르지 않습니다: ${error.message}`);
+        }
+      };
+      script.onerror = () => showError(`리뷰 데이터를 불러오지 못했습니다.\n경로: ${dataPath}\nChrome 또는 Safari에서 열었는지 확인하세요.`);
+      document.head.append(script);
+    })();
+  </script>
+</body>
+</html>

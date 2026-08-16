@@ -8,7 +8,7 @@ window.REVIEW_DATA = {
       "hunks": [
         {
           "note": "빈 이름은 한글 기본값으로 대체합니다.",
-          "diff": "@@ -1,3 +1,4 @@\n export function greet(name: string) {\n-  return `Hello, ${name}!`;\n+  const displayName = name.trim() || \"친구\";\n+  return `안녕하세요, ${displayName}!`;\n }"
+          "diff": "@@ -1,3 +1,5 @@\n export function greet(name: string) {\n-  return `Hello, ${name}!`;\n+  const displayName = name.trim() || \"친구\";\n+  const message = formatGreeting({ displayName, locale: \"ko-KR\", punctuation: \"!\", fallback: \"친구\", includeTimestamp: false });\n+  return `안녕하세요, ${message}`;\n }"
         },
         {
           "note": "문자열에 HTML처럼 보이는 특수문자가 있어도 텍스트로 표시되어야 합니다.",

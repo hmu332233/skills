@@ -1,6 +1,7 @@
 ---
 name: aside-browser
 description: Read when you need a browser automation (QA, element interaction, screencapture/snapshot, network capture, so on), or have to work across user's logged-in accounts, apps (e.g. Slack, X, LinkedIn, etc.), memory, and browsing history.
+disable-model-invocation: true
 ---
 
 # Aside Browser

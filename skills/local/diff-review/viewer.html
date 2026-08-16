@@ -8,44 +8,83 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html@3.4.56/bundles/css/diff2html.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/atom-one-dark.min.css">
   <style>
+    @font-face {
+      font-family: "Geist";
+      src: url("https://cdn.jsdelivr.net/npm/geist@1.7.2/dist/fonts/geist-sans/Geist-Variable.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Geist Mono";
+      src: url("https://cdn.jsdelivr.net/npm/geist@1.7.2/dist/fonts/geist-mono/GeistMono-Variable.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "JetBrains Mono";
+      src:
+        local("JetBrains Mono"),
+        url("https://cdn.jsdelivr.net/npm/@fontsource-variable/jetbrains-mono@5.2.6/files/jetbrains-mono-latin-wght-normal.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 100 800;
+      font-display: swap;
+    }
+
     :root {
       color-scheme: light;
-      --bg: #f4f6f8;
+      --bg: #ffffff;
       --surface: #ffffff;
-      --text: #17212b;
-      --muted: #5f6b76;
-      --border: #d8dee4;
-      --accent: #0969da;
-      --accent-soft: #ddf4ff;
-      --danger: #cf222e;
-      --shadow: 0 1px 2px rgba(27, 31, 36, 0.06), 0 8px 24px rgba(140, 149, 159, 0.12);
+      --surface-muted: #fafafa;
+      --text: #171717;
+      --muted: #666666;
+      --border: #ebebeb;
+      --accent: #0072f5;
+      --accent-soft: #ebf5ff;
+      --danger: #ff5b4f;
+      --shadow-border: 0 0 0 1px rgba(0, 0, 0, 0.08);
+      --shadow-card: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 2px rgba(0, 0, 0, 0.04), 0 8px 8px -8px rgba(0, 0, 0, 0.04), inset 0 0 0 1px #fafafa;
+      --font-sans: "Geist", Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --font-code: "JetBrains Mono", "D2Coding", "Noto Sans Mono CJK KR", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-      /* diff 에디터 전용 One Dark 팔레트 — diff2html 다크 스킴 변수 재정의 */
-      --d2h-dark-bg-color: #282c34;
+      /* diff 에디터 전용 One Dark Pro Darker 표면 + Atom One Dark 구문 팔레트 */
+      --d2h-dark-bg-color: #23272e;
       --d2h-dark-color: #abb2bf;
-      --d2h-dark-border-color: #3e4451;
-      --d2h-dark-line-border-color: #3e4451;
-      --d2h-dark-file-header-bg-color: #21252b;
+      --d2h-dark-border-color: #3e4452;
+      --d2h-dark-line-border-color: #3e4452;
+      --d2h-dark-file-header-bg-color: #1e2227;
       --d2h-dark-file-header-border-color: #181a1f;
-      --d2h-dark-dim-color: #5c6370;
-      --d2h-dark-selected-color: rgba(97, 175, 239, 0.2);
-      --d2h-dark-ins-bg-color: rgba(152, 195, 121, 0.13);
-      --d2h-dark-ins-border-color: rgba(152, 195, 121, 0.4);
-      --d2h-dark-ins-label-color: #98c379;
-      --d2h-dark-ins-highlight-bg-color: rgba(152, 195, 121, 0.35);
-      --d2h-dark-del-bg-color: rgba(224, 108, 117, 0.13);
-      --d2h-dark-del-border-color: rgba(224, 108, 117, 0.4);
-      --d2h-dark-del-label-color: #e06c75;
-      --d2h-dark-del-highlight-bg-color: rgba(224, 108, 117, 0.35);
+      --d2h-dark-dim-color: #818896;
+      --d2h-dark-selected-color: rgba(82, 139, 255, 0.24);
+      --d2h-dark-ins-bg-color: rgba(67, 208, 138, 0.16);
+      --d2h-dark-ins-border-color: rgba(67, 208, 138, 0.48);
+      --d2h-dark-ins-label-color: #43d08a;
+      --d2h-dark-ins-highlight-bg-color: rgba(67, 208, 138, 0.38);
+      --d2h-dark-del-bg-color: rgba(224, 82, 82, 0.16);
+      --d2h-dark-del-border-color: rgba(224, 82, 82, 0.48);
+      --d2h-dark-del-label-color: #e05252;
+      --d2h-dark-del-highlight-bg-color: rgba(224, 82, 82, 0.38);
       /* 짝지어진 변경 줄(change)과 순수 추가/삭제 줄의 배경을 동일하게 맞춘다 */
-      --d2h-dark-change-ins-color: rgba(152, 195, 121, 0.13);
-      --d2h-dark-change-del-color: rgba(224, 108, 117, 0.13);
+      --d2h-dark-change-ins-color: rgba(67, 208, 138, 0.16);
+      --d2h-dark-change-del-color: rgba(224, 82, 82, 0.16);
       --d2h-dark-change-label-color: #d19a66;
-      --d2h-dark-info-bg-color: rgba(97, 175, 239, 0.12);
-      --d2h-dark-info-border-color: rgba(97, 175, 239, 0.3);
-      --d2h-dark-empty-placeholder-bg-color: #2c313a;
-      --d2h-dark-empty-placeholder-border-color: #3e4451;
+      --d2h-dark-info-bg-color: rgba(82, 139, 255, 0.18);
+      --d2h-dark-info-border-color: rgba(82, 139, 255, 0.4);
+      --d2h-dark-empty-placeholder-bg-color: #272b33;
+      --d2h-dark-empty-placeholder-border-color: #3e4452;
       --d2h-dark-moved-label-color: #c678dd;
+    }
+
+    :root[data-code-font="geist"] {
+      --font-code: "Geist Mono", "D2Coding", "Noto Sans Mono CJK KR", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    :root[data-code-font="system"] {
+      --font-code: ui-monospace, SFMono-Regular, Menlo, Consolas, "D2Coding", "Noto Sans Mono CJK KR", monospace;
     }
 
     * { box-sizing: border-box; }
@@ -54,10 +93,11 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font: 400 14px/1.55 var(--font-sans);
+      font-feature-settings: "liga" 1;
     }
 
-    button { font: inherit; }
+    button, select { font: inherit; }
 
     .page {
       width: min(1600px, 100%);
@@ -67,23 +107,24 @@
 
     .hero {
       display: grid;
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: 14px;
+      margin-bottom: 32px;
     }
 
     .hero__eyebrow {
-      color: var(--accent);
+      color: var(--muted);
+      font-family: var(--font-mono);
       font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
+      font-weight: 500;
       text-transform: uppercase;
     }
 
     h1 {
       margin: 0;
       font-size: clamp(26px, 4vw, 40px);
-      line-height: 1.15;
-      letter-spacing: -0.025em;
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -1.6px;
     }
 
     .summary {
@@ -91,6 +132,7 @@
       margin: 0;
       color: var(--muted);
       font-size: 16px;
+      line-height: 1.6;
       white-space: pre-wrap;
     }
 
@@ -104,43 +146,71 @@
       align-items: center;
       margin: 0 calc(clamp(16px, 3vw, 48px) * -1) 20px;
       padding: 12px clamp(16px, 3vw, 48px);
-      border-block: 1px solid var(--border);
-      background: rgba(244, 246, 248, 0.94);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), 0 -1px 0 rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.94);
       backdrop-filter: blur(10px);
     }
 
     .toolbar__count {
       margin-right: auto;
       color: var(--muted);
-      font-weight: 600;
+      font-weight: 500;
     }
 
     .button-group { display: inline-flex; }
 
-    .button {
+    .font-picker {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .select {
       min-height: 34px;
-      padding: 6px 11px;
-      border: 1px solid var(--border);
+      padding: 6px 28px 6px 10px;
+      border: 0;
+      border-radius: 6px;
       background: var(--surface);
       color: var(--text);
+      box-shadow: var(--shadow-border);
       cursor: pointer;
     }
 
-    .button:hover { border-color: #afb8c1; }
+    .select:hover { background: var(--surface-muted); }
+    .select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .button {
+      min-height: 34px;
+      padding: 6px 11px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-border);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 120ms cubic-bezier(0.25, 0.1, 0.25, 1), color 120ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .button:hover { background: var(--surface-muted); }
     .button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .button-group .button:first-child { border-radius: 7px 0 0 7px; }
-    .button-group .button:last-child { margin-left: -1px; border-radius: 0 7px 7px 0; }
-    .button.is-active { position: relative; border-color: var(--accent); background: var(--accent-soft); color: #0550ae; }
+    .button-group .button:last-child { border-radius: 0 7px 7px 0; }
+    .button.is-active { position: relative; z-index: 1; background: var(--text); color: #ffffff; }
     .toolbar > .button { border-radius: 7px; }
 
     .files { display: grid; gap: 18px; }
 
     .file-card {
       overflow: clip;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      min-width: 0;
+      border-radius: 8px;
       background: var(--surface);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-card);
     }
 
     .file-card > summary {
@@ -148,55 +218,152 @@
       gap: 10px;
       align-items: center;
       padding: 13px 16px;
-      background: #f6f8fa;
+      background: var(--surface-muted);
       cursor: pointer;
-      font: 600 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font: 500 13px/1.4 var(--font-code);
       list-style: none;
     }
 
     .file-card > summary::-webkit-details-marker { display: none; }
     .file-card > summary::before { content: "▸"; color: var(--muted); transition: transform 120ms ease; }
     .file-card[open] > summary::before { transform: rotate(90deg); }
-    .file-card[open] > summary { border-bottom: 1px solid var(--border); }
+    .file-card[open] > summary { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08); }
 
-    .file-explanation,
-    .hunk-note {
+    .file-body,
+    .review-row,
+    .diff-pane,
+    .diff-host {
+      min-width: 0;
+    }
+
+    .review-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(260px, 24vw, 360px);
+    }
+
+    .review-row + .review-row { box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.08); }
+
+    .diff-pane { padding: 16px; }
+
+    .explanation-panel {
       margin: 0;
-      color: #3d4852;
+      padding: 20px;
+      color: #4d4d4d;
+      background: var(--surface-muted);
+      box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.08);
       white-space: pre-wrap;
     }
 
-    .file-explanation { padding: 14px 16px; border-bottom: 1px solid var(--border); }
-    .hunk { padding: 16px; }
-    .hunk + .hunk { border-top: 1px solid var(--border); }
-    .hunk-note { margin-bottom: 10px; padding: 10px 12px; border-left: 3px solid var(--accent); background: #f6f8fa; }
-    .diff-host { min-width: 0; overflow-x: auto; }
-    .file-body > .diff-host { padding: 16px; }
+    .explanation-panel--empty { color: #808080; }
 
-    .d2h-wrapper { text-align: left; }
+    .explanation-block + .explanation-block {
+      margin-top: 16px;
+      padding-top: 16px;
+      box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .explanation-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font: 500 11px/1.3 var(--font-mono);
+      text-transform: uppercase;
+    }
+
+    .explanation-copy { margin: 0; }
+
+    .diff-host {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+    }
+
+    .diff-host,
+    .d2h-file-side-diff,
+    .d2h-file-diff {
+      scrollbar-color: #495162 #1e2227;
+      scrollbar-width: thin;
+    }
+
+    .diff-host::-webkit-scrollbar,
+    .d2h-file-side-diff::-webkit-scrollbar,
+    .d2h-file-diff::-webkit-scrollbar { height: 10px; }
+    .diff-host::-webkit-scrollbar-track,
+    .d2h-file-side-diff::-webkit-scrollbar-track,
+    .d2h-file-diff::-webkit-scrollbar-track { background: #1e2227; }
+    .diff-host::-webkit-scrollbar-thumb,
+    .d2h-file-side-diff::-webkit-scrollbar-thumb,
+    .d2h-file-diff::-webkit-scrollbar-thumb { border: 2px solid #1e2227; border-radius: 9999px; background: #495162; }
+    .d2h-file-side-diff:focus-visible,
+    .d2h-file-diff:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+    .d2h-wrapper { width: 100%; min-width: 0; font-family: var(--font-code); text-align: left; }
 
     /* atom-one-dark 테마가 .hljs에 칠하는 불투명 배경이 diff 줄 배경(추가/삭제 색)을 덮지 않도록 */
     .d2h-wrapper .hljs { padding: 0; background: transparent; }
+
+    .d2h-code-line-ctn { font-family: var(--font-code); }
+
+    /* highlight.js 공식 Atom One Dark 리터럴을 그대로 사용한다. */
+    .d2h-wrapper .hljs-comment,
+    .d2h-wrapper .hljs-quote { color: #5c6370; }
+    .d2h-wrapper .hljs-doctag,
+    .d2h-wrapper .hljs-keyword,
+    .d2h-wrapper .hljs-formula { color: #c678dd; }
+    .d2h-wrapper .hljs-section,
+    .d2h-wrapper .hljs-name,
+    .d2h-wrapper .hljs-selector-tag,
+    .d2h-wrapper .hljs-deletion,
+    .d2h-wrapper .hljs-subst { color: #e06c75; }
+    .d2h-wrapper .hljs-literal { color: #56b6c2; }
+    .d2h-wrapper .hljs-string,
+    .d2h-wrapper .hljs-regexp,
+    .d2h-wrapper .hljs-addition,
+    .d2h-wrapper .hljs-attribute,
+    .d2h-wrapper .hljs-meta .hljs-string { color: #98c379; }
+    .d2h-wrapper .hljs-attr,
+    .d2h-wrapper .hljs-variable,
+    .d2h-wrapper .hljs-template-variable,
+    .d2h-wrapper .hljs-type,
+    .d2h-wrapper .hljs-selector-class,
+    .d2h-wrapper .hljs-selector-attr,
+    .d2h-wrapper .hljs-selector-pseudo,
+    .d2h-wrapper .hljs-number { color: #d19a66; }
+    .d2h-wrapper .hljs-symbol,
+    .d2h-wrapper .hljs-bullet,
+    .d2h-wrapper .hljs-link,
+    .d2h-wrapper .hljs-meta,
+    .d2h-wrapper .hljs-selector-id,
+    .d2h-wrapper .hljs-title { color: #61aeee; }
+    .d2h-wrapper .hljs-built_in,
+    .d2h-wrapper .hljs-class .hljs-title { color: #e6c07b; }
+    .d2h-wrapper .d2h-deleted { color: #e06c75 !important; }
 
     .d2h-file-wrapper { margin-bottom: 0; border-color: var(--d2h-dark-file-header-border-color); }
     .d2h-file-header { position: static; }
 
     .status {
       padding: 18px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--surface);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-card);
       white-space: pre-wrap;
     }
 
-    .status--error { border-color: #ff8182; color: var(--danger); }
+    .status--error { box-shadow: 0 0 0 1px var(--danger); color: #c7352c; }
 
-    @media (max-width: 720px) {
+    @media (max-width: 900px) {
       .page { padding-top: 20px; }
       .toolbar { position: static; }
       .toolbar__count { width: 100%; }
-      .file-body > .diff-host, .hunk { padding: 8px; }
+      .review-row { grid-template-columns: 1fr; }
+      .diff-pane { padding: 8px; }
+      .explanation-panel { padding: 16px; box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.08); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0ms !important; }
     }
   </style>
 </head>
@@ -210,10 +377,18 @@
 
     <section id="toolbar" class="toolbar" hidden aria-label="Diff 보기 설정">
       <span id="file-count" class="toolbar__count"></span>
-      <div class="button-group" aria-label="Diff 레이아웃">
+      <div class="button-group" role="group" aria-label="Diff 레이아웃">
         <button class="button is-active" id="side-by-side" type="button">Side-by-side</button>
         <button class="button" id="line-by-line" type="button">Line-by-line</button>
       </div>
+      <label class="font-picker" for="code-font">
+        코드 폰트
+        <select class="select" id="code-font">
+          <option value="jetbrains">JetBrains Mono</option>
+          <option value="geist">Geist Mono</option>
+          <option value="system">System Mono</option>
+        </select>
+      </label>
       <button class="button" id="toggle-files" type="button">모두 접기</button>
     </section>
 
@@ -233,11 +408,37 @@
         content: document.querySelector("#content"),
         sideBySide: document.querySelector("#side-by-side"),
         lineByLine: document.querySelector("#line-by-line"),
+        codeFont: document.querySelector("#code-font"),
         toggleFiles: document.querySelector("#toggle-files")
       };
 
+      const CODE_FONT_STORAGE_KEY = "diff-review-code-font";
+      const CODE_FONTS = new Set(["jetbrains", "geist", "system"]);
       let outputFormat = "side-by-side";
       let reviewData;
+
+      function readStoredCodeFont() {
+        try {
+          const value = localStorage.getItem(CODE_FONT_STORAGE_KEY);
+          return CODE_FONTS.has(value) ? value : "jetbrains";
+        } catch {
+          return "jetbrains";
+        }
+      }
+
+      function setCodeFont(value, persist = true) {
+        const nextFont = CODE_FONTS.has(value) ? value : "jetbrains";
+        document.documentElement.dataset.codeFont = nextFont;
+        elements.codeFont.value = nextFont;
+        if (!persist) return;
+        try {
+          localStorage.setItem(CODE_FONT_STORAGE_KEY, nextFont);
+        } catch {
+          // 일부 브라우저는 file:// 페이지의 localStorage를 차단한다.
+        }
+      }
+
+      setCodeFont(readStoredCodeFont(), false);
 
       function showError(message) {
         elements.content.className = "status status--error";
@@ -265,6 +466,43 @@
         element.className = className;
         element.textContent = value;
         return element;
+      }
+
+      function appendExplanationBlock(panel, label, value) {
+        if (typeof value !== "string" || !value) return;
+        const block = document.createElement("div");
+        block.className = "explanation-block";
+        block.append(createTextElement("span", "explanation-label", label));
+        block.append(createTextElement("p", "explanation-copy", value));
+        panel.append(block);
+      }
+
+      function createExplanationPanel(fileExplanation, hunkNote) {
+        const panel = document.createElement("aside");
+        panel.className = "explanation-panel";
+        panel.setAttribute("aria-label", "변경 설명");
+        appendExplanationBlock(panel, "File context", fileExplanation);
+        appendExplanationBlock(panel, "Change note", hunkNote);
+        if (!panel.hasChildNodes()) {
+          panel.classList.add("explanation-panel--empty");
+          panel.append(createTextElement("p", "explanation-copy", "추가 설명 없음"));
+        }
+        return panel;
+      }
+
+      function createReviewRow(diff, path, fileExplanation, hunkNote) {
+        const row = document.createElement("section");
+        row.className = "review-row";
+
+        const diffPane = document.createElement("div");
+        diffPane.className = "diff-pane";
+        const host = document.createElement("div");
+        host.className = "diff-host";
+        diffPane.append(host);
+
+        row.append(diffPane, createExplanationPanel(fileExplanation, hunkNote));
+        drawDiff(host, diff, path);
+        return row;
       }
 
       function addFileHeaders(path, diff) {
@@ -296,6 +534,11 @@
             synchronisedScroll: true
           });
           ui.draw();
+          host.querySelectorAll(".d2h-file-side-diff, .d2h-file-diff").forEach((region, index) => {
+            region.tabIndex = 0;
+            region.setAttribute("role", "region");
+            region.setAttribute("aria-label", `${path} 코드 diff 패널 ${index + 1}`);
+          });
         } catch (error) {
           host.className = "status status--error";
           host.textContent = `Diff를 렌더링하지 못했습니다: ${error.message}`;
@@ -313,28 +556,18 @@
 
         const body = document.createElement("div");
         body.className = "file-body";
-        if (typeof file.explanation === "string" && file.explanation) {
-          body.append(createTextElement("p", "file-explanation", file.explanation));
-        }
 
         if (Array.isArray(file.hunks)) {
-          file.hunks.forEach((hunk) => {
-            const section = document.createElement("section");
-            section.className = "hunk";
-            if (typeof hunk.note === "string" && hunk.note) {
-              section.append(createTextElement("p", "hunk-note", hunk.note));
-            }
-            const host = document.createElement("div");
-            host.className = "diff-host";
-            section.append(host);
-            body.append(section);
-            drawDiff(host, addFileHeaders(file.path, hunk.diff), file.path);
+          file.hunks.forEach((hunk, index) => {
+            body.append(createReviewRow(
+              addFileHeaders(file.path, hunk.diff),
+              file.path,
+              index === 0 ? file.explanation : undefined,
+              hunk.note
+            ));
           });
         } else {
-          const host = document.createElement("div");
-          host.className = "diff-host";
-          body.append(host);
-          drawDiff(host, file.diff, file.path);
+          body.append(createReviewRow(file.diff, file.path, file.explanation));
         }
 
         card.append(body);
@@ -385,6 +618,7 @@
 
       elements.sideBySide.addEventListener("click", () => setOutputFormat("side-by-side"));
       elements.lineByLine.addEventListener("click", () => setOutputFormat("line-by-line"));
+      elements.codeFont.addEventListener("change", () => setCodeFont(elements.codeFont.value));
       elements.toggleFiles.addEventListener("click", () => {
         const cards = Array.from(document.querySelectorAll(".file-card"));
         const shouldOpen = !cards.some((card) => card.open);

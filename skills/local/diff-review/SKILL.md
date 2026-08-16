@@ -21,7 +21,7 @@ description: 명시적으로 /diff-review를 호출했을 때 코드 변경을 �
 
 5. 사용자에게 뷰어를 열었다고 알리고 승인 또는 수정 요청을 기다린다. 명시적 승인 전에는 제안 변경을 적용하지 않는다.
 
-Chrome 또는 Safari를 기본 브라우저로 사용한다. Firefox는 뷰어 디렉터리 밖의 로컬 스크립트를 차단할 수 있다. HTTP 서버로 뷰어를 서빙하지 않는다 — 뷰어가 데이터를 `file://` script로 로드하므로 http 페이지에서는 브라우저가 차단한다. 뷰어는 diff2html과 highlight.js 테마를 CDN(jsdelivr)에서 로드하므로 네트워크 연결이 필요하다. diff 영역은 페이지 테마와 무관하게 항상 One Dark 팔레트의 다크모드로 렌더링된다.
+Chrome 또는 Safari를 기본 브라우저로 사용한다. Firefox는 뷰어 디렉터리 밖의 로컬 스크립트를 차단할 수 있다. HTTP 서버로 뷰어를 서빙하지 않는다 — 뷰어가 데이터를 `file://` script로 로드하므로 http 페이지에서는 브라우저가 차단한다. 뷰어는 diff2html과 highlight.js 테마를 CDN(jsdelivr)에서 로드하므로 네트워크 연결이 필요하다. diff 영역은 페이지 테마와 무관하게 항상 One Dark Pro Darker 표면과 Atom One Dark 구문 팔레트의 다크모드로 렌더링된다.
 
 ## 데이터 스키마
 
@@ -69,5 +69,8 @@ window.REVIEW_DATA = {
 - 데이터 문법: `node --check <data.js>`가 성공해야 한다.
 - 여는 경로: `scripts/open-review.sh <skill-dir>/sample.data.js`가 뷰어를 데이터와 함께 띄워야 한다.
 - 뷰어: 제목, 요약, 모든 파일과 diff가 보이고 브라우저 콘솔 오류가 없어야 한다.
-- 상호작용: side-by-side/line-by-line 전환과 파일 접기/펼치기가 동작해야 한다.
+- 레이아웃: 데스크톱에서는 diff가 왼쪽, 파일·헝크 설명이 오른쪽에 같은 행으로 보여야 한다. 좁은 화면에서는 diff 다음에 설명이 쌓여야 한다.
+- 오버플로: 긴 코드 줄은 diff 영역 안에서만 가로 스크롤되고 페이지 전체에는 가로 스크롤이 생기지 않아야 한다.
+- 테마: 편집기 배경은 One Dark Pro Darker의 `#23272e`, 구문색은 highlight.js Atom One Dark 공식 리터럴로 렌더링되어야 한다.
+- 상호작용: side-by-side/line-by-line 전환, 코드 폰트 선택, 파일 접기/펼치기가 동작해야 한다. 코드 폰트의 기본값은 JetBrains Mono다.
 - 뷰어 자체를 수정할 때는 `sample.data.js`로 수정·신규·삭제·한글 사례를 다시 확인한다.

@@ -10,7 +10,11 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { removeBrokenSkillLinks, sourceSkillOrThrow } from "./core.js";
+import {
+  removeBrokenSkillLinks,
+  removeRegisteredSkillLinks,
+  sourceSkillOrThrow,
+} from "./core.js";
 
 function makeFixture(): { targetDir: string; cleanup: () => void } {
   // ponytail: one known source skill is enough to exercise registered status.
@@ -102,4 +106,30 @@ test("empty names removes nothing", (t) => {
   assert.deepEqual(removed, []);
   assert.ok(exists(targetDir, "broken-1"));
   assert.ok(exists(targetDir, "broken-2"));
+});
+
+test("removes registered links and skips every protected status", (t) => {
+  const { targetDir, cleanup } = makeFixture();
+  t.after(cleanup);
+
+  const result = removeRegisteredSkillLinks(targetDir, [
+    "ponytail",
+    "broken-1",
+    "external",
+    "not-symlink",
+  ]);
+
+  assert.deepEqual(result.removed.map((entry) => entry.name), ["ponytail"]);
+  assert.deepEqual(
+    result.skipped.map((entry) => [entry.name, entry.status]),
+    [
+      ["broken-1", "broken"],
+      ["external", "external"],
+      ["not-symlink", "not-symlink"],
+    ]
+  );
+  assert.ok(!exists(targetDir, "ponytail"));
+  assert.ok(exists(targetDir, "broken-1"));
+  assert.ok(exists(targetDir, "external"));
+  assert.ok(exists(targetDir, "not-symlink"));
 });

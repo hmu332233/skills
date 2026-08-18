@@ -78,7 +78,7 @@ minung-skills
 
 CLI는 `external`, `not-symlink` 항목을 자동 수정하지 않습니다. `broken` symlink는 interactive UI에서 확인 후 정리할 수 있고, `clean` 명령으로도 정리할 수 있습니다.
 
-## Non-interactive Commands
+## Commands
 
 스크립트와 fallback 용도로 명령형 인터페이스도 유지합니다.
 
@@ -134,6 +134,20 @@ minung-skills clean --project --yes
 `clean`은 삭제 전에 broken symlink 목록을 보여준 뒤, 각 항목을 `이름 -> 가리키던 경로`로 표시한 checkbox를 엽니다. 모든 항목이 기본 체크되어 있으므로 남기고 싶은 것만 해제하고 나머지를 정리하면 됩니다. 선택한 항목만 삭제되고, 실제 삭제된 목록이 다시 출력됩니다. 아무것도 선택하지 않으면 아무것도 삭제하지 않습니다.
 
 `--yes`를 쓰면 UI 없이 broken symlink 전체를 즉시 삭제하며(자동화용), broken 목록과 삭제 목록은 그대로 출력합니다. `broken` 링크가 없으면 UI 없이 안내 후 종료합니다. `external`/`not-symlink` 항목은 `clean` 대상이 아닙니다.
+
+정상 등록된 symlink를 해제하려면 `remove`를 사용합니다.
+
+```sh
+minung-skills remove
+minung-skills remove --root
+minung-skills remove --project
+minung-skills remove --root --claude
+minung-skills remove --claude
+```
+
+목적지 flag 없이 실행하면 삭제할 위치를 먼저 고릅니다. `--claude`만 사용하면 project/global `.claude/skills` 중 하나를 고릅니다. 목적지가 정해지면 현재 `registered` 상태인 스킬만 Local / Imported / Taste 그룹으로 보여주며, checkbox에서 삭제할 링크를 선택합니다.
+
+최종 확인에는 선택한 스킬 이름이 모두 표시되고 기본값은 No입니다. 확인 후에도 각 항목이 여전히 `registered`인지 다시 검사하며, 상태가 달라진 항목은 건너뛰고 나머지만 삭제합니다. `remove`는 `broken`, `external`, `not-symlink`, 원본 스킬 디렉토리, 비어 있는 대상 디렉토리를 삭제하지 않습니다. 스킬 이름 인자와 `--yes`는 지원하지 않습니다.
 
 ## 주의사항
 

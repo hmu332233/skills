@@ -224,6 +224,38 @@ export function removeBrokenSkillLinks(
   return removed;
 }
 
+export function removeRegisteredSkillLinks(
+  targetDir: string,
+  names: readonly string[]
+): {
+  removed: RegisteredSkill[];
+  skipped: (RegisteredSkill & { error?: string })[];
+} {
+  const removed: RegisteredSkill[] = [];
+  const skipped: (RegisteredSkill & { error?: string })[] = [];
+
+  for (const name of names) {
+    const entry = inspectRegisteredSkill(targetDir, name);
+
+    if (entry.status !== "registered") {
+      skipped.push(entry);
+      continue;
+    }
+
+    try {
+      unlinkSync(join(targetDir, name));
+      removed.push(entry);
+    } catch (err: unknown) {
+      skipped.push({
+        ...inspectRegisteredSkill(targetDir, name),
+        error: (err as Error).message,
+      });
+    }
+  }
+
+  return { removed, skipped };
+}
+
 export type Scope = "root" | "project";
 
 export function addSkill(

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Aside Browser"
+  short_description: "Automate browser tasks with Aside"
+policy:
+  allow_implicit_invocation: false

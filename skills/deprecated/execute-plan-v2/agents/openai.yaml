@@ -1,0 +1,5 @@
+interface:
+  display_name: "execute-plan-v2"
+  short_description: "Execute an existing implementation plan"
+policy:
+  allow_implicit_invocation: false

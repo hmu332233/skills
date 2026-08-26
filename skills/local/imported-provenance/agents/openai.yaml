@@ -1,0 +1,5 @@
+interface:
+  display_name: "imported-provenance"
+  short_description: "Audit and sync imported skill provenance"
+policy:
+  allow_implicit_invocation: false

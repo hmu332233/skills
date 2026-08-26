@@ -1,0 +1,5 @@
+interface:
+  display_name: "i-have-adhd"
+  short_description: "Shape responses for an ADHD reader"
+policy:
+  allow_implicit_invocation: false

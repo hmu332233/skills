@@ -1,0 +1,5 @@
+interface:
+  display_name: "to-issues-legacy"
+  short_description: "Turn plans into implementation issues"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: "diff-review"
+  short_description: "Review proposed code changes before applying them"
+policy:
+  allow_implicit_invocation: false

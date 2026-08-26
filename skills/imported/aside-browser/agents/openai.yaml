@@ -1,5 +1,5 @@
 interface:
-  display_name: "Aside Browser"
+  display_name: "aside-browser"
   short_description: "Automate browser tasks with Aside"
 policy:
   allow_implicit_invocation: false

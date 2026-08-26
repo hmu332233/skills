@@ -1,0 +1,5 @@
+interface:
+  display_name: "caveman"
+  short_description: "Use ultra-compressed communication"
+policy:
+  allow_implicit_invocation: false

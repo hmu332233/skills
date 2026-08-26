@@ -1,0 +1,6 @@
+interface:
+  display_name: "Korean Nominal Style"
+  short_description: "한국어 개발 문장을 의미 보존형 개조식으로 간결하게 변환"
+  default_prompt: "Use $korean-nominal-style to rewrite the selected Korean developer prose in concise nominal style."
+policy:
+  allow_implicit_invocation: false

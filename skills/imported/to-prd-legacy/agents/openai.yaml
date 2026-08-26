@@ -1,0 +1,5 @@
+interface:
+  display_name: "to-prd-legacy"
+  short_description: "Turn conversation context into a PRD"
+policy:
+  allow_implicit_invocation: false

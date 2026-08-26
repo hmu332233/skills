@@ -1,0 +1,5 @@
+interface:
+  display_name: "to-html"
+  short_description: "Create standalone HTML reports"
+policy:
+  allow_implicit_invocation: false

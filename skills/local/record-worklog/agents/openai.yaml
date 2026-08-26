@@ -1,0 +1,5 @@
+interface:
+  display_name: "record-worklog"
+  short_description: "Record repository work sessions and decisions"
+policy:
+  allow_implicit_invocation: false

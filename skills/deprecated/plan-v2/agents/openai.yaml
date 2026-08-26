@@ -1,0 +1,5 @@
+interface:
+  display_name: "plan-v2"
+  short_description: "Create careful implementation plans"
+policy:
+  allow_implicit_invocation: false

@@ -55,18 +55,18 @@
       "skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
       "computedHash": "fd6c99466b7ba43be624e6e66ed6d7af2796ded7218f24c83820823977819e22"
     },
-    "domain-modeling": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/engineering/domain-modeling/SKILL.md",
-      "computedHash": "363cb0f53b0b431e7c00086ad1f823500b7e1b70b5616ee969c979f0934e9e6e"
-    },
     "diagram-design": {
       "source": "cathrynlavery/diagram-design",
       "sourceType": "github",
       "skillPath": "skills/diagram-design/SKILL.md",
       "importedRevision": "09df49d8d1a1c7fb2efdfcdc7a2a0713534350a6",
       "computedHash": "8366ef4d11c3a9591556deb55320ea3521c138ccdad834eb087b8062f41d93a1"
+    },
+    "domain-modeling": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/domain-modeling/SKILL.md",
+      "computedHash": "363cb0f53b0b431e7c00086ad1f823500b7e1b70b5616ee969c979f0934e9e6e"
     },
     "grill-me": {
       "source": "mattpocock/skills",
@@ -122,6 +122,12 @@
       "sourceType": "github",
       "skillPath": "skills/last30days/SKILL.md",
       "computedHash": "4738972a272a2cb4f58fb1a494bc671be93cc1288ee08a91400efd6c3f6725ee"
+    },
+    "planning-with-files": {
+      "source": "OthmanAdi/planning-with-files",
+      "sourceType": "github",
+      "skillPath": "skills/planning-with-files/SKILL.md",
+      "computedHash": "5fb355a4614c99b2dedf69c54d221f15a27bd8f775b98fcaaa9d5549cf5f13ce"
     },
     "prototype": {
       "source": "mattpocock/skills",

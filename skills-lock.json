@@ -7,6 +7,12 @@
       "skillPath": "skills/agent-browser/SKILL.md",
       "computedHash": "ecc7641aea05f85ca3b11e7759d32aaf52fe05946ab4b63739c7bf78a41237a2"
     },
+    "archify": {
+      "source": "tt-a1i/archify",
+      "sourceType": "github",
+      "skillPath": "archify/SKILL.md",
+      "computedHash": "846a98139bf428f52dc42468cd0cb54c805c22274eda5e5c588bc979f1fe5c8c"
+    },
     "ask-matt": {
       "source": "mattpocock/skills",
       "sourceType": "github",

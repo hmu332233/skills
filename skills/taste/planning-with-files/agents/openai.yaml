@@ -1,0 +1,5 @@
+interface:
+  display_name: "Planning with Files"
+  short_description: "Keep planning state in files"
+policy:
+  allow_implicit_invocation: false

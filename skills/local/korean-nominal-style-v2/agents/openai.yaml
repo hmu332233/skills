@@ -1,0 +1,4 @@
+interface:
+  display_name: "korean-nominal-style-v2"
+policy:
+  allow_implicit_invocation: false
